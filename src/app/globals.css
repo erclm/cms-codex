@@ -143,6 +143,31 @@
   border-color: rgba(244, 204, 93, 0.28);
 }
 
+[data-theme="pop-up-preview"] {
+  --background: #0f1622;
+  --foreground: #f4f6fb;
+  --muted: #b1bed3;
+  --card: rgba(255, 255, 255, 0.05);
+  --accent: #ffd166;
+  --accent-strong: #f4cc5d;
+  --border: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+
+[data-theme="pop-up-preview"] .hello-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px dashed var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 * {
   box-sizing: border-box;
 }

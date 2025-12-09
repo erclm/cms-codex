@@ -131,6 +131,7 @@ export default async function Home() {
   const heroProduct = products[0];
   const themeFlag =
     activeTheme?.title?.trim() ? toSlug(activeTheme.title) : null;
+  const enablePopUpPreviewTheme = themeFlag === "pop-up-preview";
   const enableMerryTheme = themeFlag === "merry-christmas";
   const heroHeading = enableMerryTheme
     ? "Merry Market Supply — a cozy gifting storefront powered by Codex + Supabase."
@@ -173,6 +174,11 @@ export default async function Home() {
         }`}
       >
         <div className="space-y-5">
+          {enablePopUpPreviewTheme ? (
+            <p className="hello-chip" aria-live="polite">
+              hello
+            </p>
+          ) : null}
           <div
             className={`inline-flex items-center gap-2 rounded-full border border-emerald-400/30 px-4 py-1 text-xs uppercase tracking-[0.2em] ${
               enableMerryTheme

@@ -1,6 +1,3 @@
-Applied a merry christmas theme behind a single toggle while keeping the base storefront logic intact.
+Added a minimal “Pop-up Preview” theme hook that only renders a small “hello” chip on the hero when the theme flag is active, keeping all existing storefront behavior intact. Updated `src/app/page.tsx` to gate the hello chip behind the `pop-up-preview` theme slug, and appended a scoped data-theme block with reuse of existing tokens plus styling for the chip in `src/app/globals.css`. Base look remains unchanged unless a ready+enabled Supabase theme with that title is active.
 
-- src/app/globals.css: added `[data-theme="merry-christmas"]` design tokens, gradients, snow/glow overlays, and festive utility classes (hero, buttons, chips, cards, labels) that only apply when the flag is present.
-- src/app/page.tsx: introduced `enableMerryTheme`/`themeFlag`, scoped the theme via `data-theme` on `<main>`, and switched hero/products/events copy plus styling hooks to holiday variants only when the toggle is true; base text/layout remain unchanged when it’s false.
-
-Next steps: flip `enableMerryTheme` to false to revert to the base look, and optionally run `npm run lint` to double-check.
+Next steps: set/enable the “Pop-up Preview” theme row (status ready) in Supabase to see the hello chip; nothing else changes.
