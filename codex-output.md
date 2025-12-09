@@ -1,6 +1,4 @@
-Applied a merry christmas theme behind a single toggle while keeping the base storefront logic intact.
+- Added a scoped New Years palette and component styles under `data-theme="new-years-event"` in `src/app/globals.css`, keeping prior themes intact while introducing aurora/gold accents, chips, buttons, cards, and shell treatments that only apply when the flag is on.
+- Updated `src/app/page.tsx` to recognize the `new-years-event` slug from Supabase, swap in New Years copy, highlights, badges, and CTA text, and apply the new scoped classes without touching base or other themes.
 
-- src/app/globals.css: added `[data-theme="merry-christmas"]` design tokens, gradients, snow/glow overlays, and festive utility classes (hero, buttons, chips, cards, labels) that only apply when the flag is present.
-- src/app/page.tsx: introduced `enableMerryTheme`/`themeFlag`, scoped the theme via `data-theme` on `<main>`, and switched hero/products/events copy plus styling hooks to holiday variants only when the toggle is true; base text/layout remain unchanged when it’s false.
-
-Next steps: flip `enableMerryTheme` to false to revert to the base look, and optionally run `npm run lint` to double-check.
+Tests not run (not requested). If you want to see the look, set a Supabase `themes` row with title “New years event” (status `ready`, `enabled` true) so the data-theme flag activates.
