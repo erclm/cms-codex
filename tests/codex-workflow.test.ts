@@ -30,6 +30,7 @@ describe("codex theme workflow", () => {
       /concurrency:\s*\n\s*group:\s*codex-theme-\${{ github\.event\.issue\.number }}/i
     );
     expect(workflowYaml).toMatch(/cancel-in-progress:\s*true/i);
+    expect(workflowYaml).toMatch(/types:\s*\[labeled\]/i);
   });
 
   it("checks out the default branch as the working base", () => {
