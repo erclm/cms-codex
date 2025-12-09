@@ -41,8 +41,11 @@ jobs:
           openai-api-key: ${{ env.OPENAI_API_KEY }}
           prompt: |
             You are Codex. Generate a refreshed storefront theme for this Next.js + Tailwind ecommerce demo.
-            Keep all data fetching and logic intact—modify only styling, layout polish, and copy tone.
+            Keep all data fetching and logic intact—modify only styling, layout polish, and copy tone on the storefront.
+            Theme applies to the storefront only (src/app/page.tsx + src/app/globals.css). Do not change admin/auth/dashboard or tests.
+            Keep generation quick: minimize diff size, reuse existing tokens, and avoid adding assets or extra routes.
             Make the theme explicitly toggleable: scope all new design tokens and layout tweaks so they only apply when a single theme flag (class or data-attribute) is turned on, and keep the base look stable when that flag is off.
+            Never ship the theme enabled by default in code. Read from the Supabase "themes" table and only set the flag when a theme row is both enabled and status=ready; otherwise keep the base look.
             Focus on src/app/globals.css for tokens and src/app/page.tsx for presentation tweaks that respect that toggle.
             The requested mood is: "${{ github.event.issue.title }}".
             Maintain accessibility, contrast, and mobile responsiveness.

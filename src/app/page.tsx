@@ -4,12 +4,18 @@ import { format } from "date-fns";
 import StorefrontNav from "@/components/storefront-nav";
 import AuthOnly from "@/components/auth-only";
 import { getSupabaseServerClient } from "@/lib/supabase/server-client";
-import type { Event, Product } from "@/lib/types";
+import type { Event, Product, Theme } from "@/lib/types";
+
+type ActiveTheme = Pick<Theme, "id" | "title" | "status" | "enabled" | "updated_at">;
 
 async function loadContent() {
   const supabase = getSupabaseServerClient();
 
-  const [{ data: products }, { data: events }] = await Promise.all([
+  const [
+    { data: products },
+    { data: events },
+    { data: themes },
+  ] = await Promise.all([
     supabase
       .from("products")
       .select("*")
@@ -20,11 +26,19 @@ async function loadContent() {
       .select("*")
       .eq("status", "published")
       .order("starts_at", { ascending: true }),
+    supabase
+      .from("themes")
+      .select("id,title,status,enabled,updated_at")
+      .eq("status", "ready")
+      .eq("enabled", true)
+      .order("updated_at", { ascending: false })
+      .limit(1),
   ]);
 
   return {
     products: products ?? [],
     events: events ?? [],
+    activeTheme: (themes as ActiveTheme[] | null)?.[0] ?? null,
   };
 }
 
@@ -39,9 +53,6 @@ const festiveHeroHighlight = [
   "Extended returns through Jan 15",
   "Next-day sleigh delivery",
 ];
-
-const enableMerryTheme = true;
-const themeFlag = "merry-christmas";
 
 const fallbackProductImages = [
   "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80",
@@ -69,28 +80,13 @@ const curatedByKeyword: Record<string, string> = {
     "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80",
 };
 
-const heroHeading = enableMerryTheme
-  ? "Merry Market Supply — a cozy gifting storefront powered by Codex + Supabase."
-  : "Night Market Supply — a one-page storefront powered by Codex + Supabase.";
-
-const heroDescription = enableMerryTheme
-  ? "Cheerful merch, beans, and tech wrapped up for the season. Publish in the admin, let the elves fulfill live inventory, and refresh the vibe with a single theme flag."
-  : "Merch, tech, coffee gear, whatever you dream up. Publish in the admin, let customers browse here. Codex can even ship a new theme via GitHub PR.";
-
-const heroHighlight = enableMerryTheme
-  ? festiveHeroHighlight
-  : defaultHeroHighlight;
-
-const heroCtaLabel = enableMerryTheme
-  ? "Shop holiday picks"
-  : "Shop the collection";
-
-const stockBadgeLabel = enableMerryTheme ? "North Pole ready" : "In stock";
-const addToCartLabel = enableMerryTheme ? "Add to sleigh" : "Add to bag";
-
-const eventsHeading = enableMerryTheme
-  ? "Holiday happenings"
-  : "In-store happenings";
+function toSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
 
 function hashString(input: string) {
   let hash = 0;
@@ -130,13 +126,33 @@ function getProductImage(product: Product) {
 }
 
 export default async function Home() {
-  const { products, events } = await loadContent();
+  const { products, events, activeTheme } = await loadContent();
   const featuredProducts = products.slice(0, 6);
   const heroProduct = products[0];
+  const themeFlag =
+    activeTheme?.title?.trim() ? toSlug(activeTheme.title) : null;
+  const enableMerryTheme = themeFlag === "merry-christmas";
+  const heroHeading = enableMerryTheme
+    ? "Merry Market Supply — a cozy gifting storefront powered by Codex + Supabase."
+    : "Night Market Supply — a one-page storefront powered by Codex + Supabase.";
+  const heroDescription = enableMerryTheme
+    ? "Cheerful merch, beans, and tech wrapped up for the season. Publish in the admin, let the elves fulfill live inventory, and refresh the vibe with a single theme flag."
+    : "Merch, tech, coffee gear, whatever you dream up. Publish in the admin, let customers browse here. Codex can even ship a new theme via GitHub PR.";
+  const heroHighlight = enableMerryTheme
+    ? festiveHeroHighlight
+    : defaultHeroHighlight;
+  const heroCtaLabel = enableMerryTheme
+    ? "Shop holiday picks"
+    : "Shop the collection";
+  const stockBadgeLabel = enableMerryTheme ? "North Pole ready" : "In stock";
+  const addToCartLabel = enableMerryTheme ? "Add to sleigh" : "Add to bag";
+  const eventsHeading = enableMerryTheme
+    ? "Holiday happenings"
+    : "In-store happenings";
 
   return (
     <main
-      data-theme={enableMerryTheme ? themeFlag : undefined}
+      data-theme={themeFlag ?? undefined}
       className={`flex flex-col gap-10 pb-16 ${
         enableMerryTheme
           ? "relative overflow-hidden rounded-[28px] border border-[var(--border)] bg-[var(--background)]/95 shadow-[0_20px_110px_rgba(0,0,0,0.55)] backdrop-blur-md"
