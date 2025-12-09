@@ -8,6 +8,8 @@ jobs:
   theme:
     if: contains(github.event.issue.labels.*.name, 'codex-request')
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     permissions:
       contents: write
       pull-requests: write
@@ -27,7 +29,7 @@ jobs:
           git checkout -B "$BRANCH"
 
       - name: Verify OpenAI API key present
-        if: ${{ secrets.OPENAI_API_KEY == '' }}
+        if: ${{ !env.OPENAI_API_KEY }}
         run: |
           echo "OPENAI_API_KEY secret is missing. Add it to the repo or org secrets so codex-action can start the Responses API proxy." >&2
           exit 1
@@ -36,7 +38,7 @@ jobs:
         id: codex
         uses: openai/codex-action@v1
         with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-api-key: ${{ env.OPENAI_API_KEY }}
           prompt: |
             You are Codex. Generate a refreshed storefront theme for this Next.js + Tailwind ecommerce demo.
             Keep all data fetching and logic intact—modify only styling, layout polish, and copy tone.
