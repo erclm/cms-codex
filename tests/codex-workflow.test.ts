@@ -33,6 +33,11 @@ describe("codex theme workflow", () => {
     expect(workflowYaml).toMatch(/types:\s*\[labeled\]/i);
   });
 
+  it("passes the issue body notes into the Codex prompt", () => {
+    expect(workflowYaml).toMatch(/Respect the user-provided notes from the issue body/i);
+    expect(workflowYaml).toMatch(/\${{\s*github\.event\.issue\.body\s*}}\s*\n\s*----/i);
+  });
+
   it("checks out the default branch as the working base", () => {
     expect(workflowYaml).toMatch(
       /ref:\s*\${{\s*github\.event\.repository\.default_branch\s*}}/i

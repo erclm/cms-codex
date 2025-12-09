@@ -59,6 +59,10 @@ jobs:
             Never ship the theme enabled by default in code. Read from the Supabase "themes" table and only set the flag when a theme row is both enabled and status=ready; otherwise keep the base look.
             Focus on src/app/globals.css for tokens and src/app/page.tsx for presentation tweaks that respect that toggle.
             The requested mood is: "${{ github.event.issue.title }}".
+            Respect the user-provided notes from the issue body:
+            ----
+            ${{ github.event.issue.body }}
+            ----
             Maintain accessibility, contrast, and mobile responsiveness.
           output-file: codex-output.md
           safety-strategy: drop-sudo
