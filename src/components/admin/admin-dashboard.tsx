@@ -1,16 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
-import type { Event, Product, ProductStatus } from "@/lib/types";
+import type {
+  Event,
+  Product,
+  ProductStatus,
+  Theme,
+  ThemeStatus,
+} from "@/lib/types";
 
 type ProductFormState = {
   id?: string;
   name: string;
   slug: string;
   price: string;
+  image_url: string;
   status: ProductStatus;
   summary: string;
   description: string;
@@ -25,10 +33,17 @@ type EventFormState = {
   ends_at: string;
 };
 
+type ThemeFormState = {
+  event_id: string;
+  title: string;
+  notes: string;
+};
+
 const emptyProduct: ProductFormState = {
   name: "",
   slug: "",
   price: "",
+  image_url: "",
   status: "published",
   summary: "",
   description: "",
@@ -40,6 +55,12 @@ const emptyEvent: EventFormState = {
   status: "published",
   starts_at: "",
   ends_at: "",
+};
+
+const emptyTheme: ThemeFormState = {
+  event_id: "",
+  title: "",
+  notes: "",
 };
 
 function toSlug(text: string) {
@@ -62,18 +83,22 @@ export default function AdminDashboard() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [themes, setThemes] = useState<Theme[]>([]);
   const [productForm, setProductForm] =
     useState<ProductFormState>(emptyProduct);
   const [eventForm, setEventForm] = useState<EventFormState>(emptyEvent);
+  const [themeForm, setThemeForm] = useState<ThemeFormState>(emptyTheme);
   const [savingProduct, setSavingProduct] = useState(false);
   const [savingEvent, setSavingEvent] = useState(false);
-  const [issueMessage, setIssueMessage] = useState<string | null>(null);
-  const [issueLoading, setIssueLoading] = useState(false);
-  const [themeTitle, setThemeTitle] = useState("");
-  const [themeNotes, setThemeNotes] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [themeMessage, setThemeMessage] = useState<string | null>(null);
+  const [creatingTheme, setCreatingTheme] = useState(false);
+  const [updatingThemeId, setUpdatingThemeId] = useState<string | null>(null);
 
   const refreshData = useCallback(async () => {
-    const [{ data: productRows }, { data: eventRows }] = await Promise.all([
+    const [{ data: productRows }, { data: eventRows }, { data: themeRows }] =
+      await Promise.all([
       supabase.from("products").select("*").order("created_at", {
         ascending: false,
       }),
@@ -81,10 +106,14 @@ export default function AdminDashboard() {
         ascending: true,
         nullsFirst: true,
       }),
+      supabase.from("themes").select("*").order("created_at", {
+        ascending: false,
+      }),
     ]);
 
     setProducts(productRows ?? []);
     setEvents(eventRows ?? []);
+    setThemes(themeRows ?? []);
   }, [supabase]);
 
   useEffect(() => {
@@ -96,6 +125,44 @@ export default function AdminDashboard() {
       }
     });
   }, [refreshData, supabase]);
+
+  useEffect(() => {
+    if (!themeForm.event_id && events.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setThemeForm((prev) => ({ ...prev, event_id: events[0].id }));
+    }
+  }, [events, themeForm.event_id]);
+
+  const handleImageUpload = async (file?: File | null) => {
+    if (!file) return;
+    setUploadError(null);
+    setUploadingImage(true);
+
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `products/${crypto.randomUUID()}.${ext}`;
+
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      setUploadError(
+        "Upload failed. Check storage policies and bucket permissions."
+      );
+      setUploadingImage(false);
+      return;
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("product-images").getPublicUrl(data.path);
+
+    setProductForm((p) => ({ ...p, image_url: publicUrl }));
+    setUploadingImage(false);
+  };
 
   const handleProductSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -113,6 +180,7 @@ export default function AdminDashboard() {
       status: productForm.status,
       summary: productForm.summary || null,
       description: productForm.description || null,
+      image_url: productForm.image_url || null,
     };
 
     if (productForm.id) {
@@ -135,6 +203,7 @@ export default function AdminDashboard() {
       name: product.name,
       slug: product.slug ?? "",
       price: (product.price_cents / 100).toString(),
+      image_url: product.image_url ?? "",
       status: product.status,
       summary: product.summary ?? "",
       description: product.description ?? "",
@@ -197,37 +266,81 @@ export default function AdminDashboard() {
     void refreshData();
   };
 
-  const submitThemeIssue = async (event: React.FormEvent) => {
+  const handleThemeSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIssueLoading(true);
-    setIssueMessage(null);
+    setCreatingTheme(true);
+    setThemeMessage(null);
 
-    const response = await fetch("/api/github/issue", {
+    if (!themeForm.event_id) {
+      setThemeMessage("Select an event before requesting a theme.");
+      setCreatingTheme(false);
+      return;
+    }
+
+    const response = await fetch("/api/themes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: themeTitle || "New theme request",
-        body:
-          themeNotes ||
-          "Generate a new storefront theme for the Codex CMS demo.",
-        labels: ["codex-request", "theme"],
+        eventId: themeForm.event_id,
+        title: themeForm.title || "New theme request",
+        notes: themeForm.notes,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.json().catch(() => ({}));
-      setIssueMessage(
-        errorText?.error || "Failed to create GitHub issue. Check server logs."
+      setThemeMessage(
+        errorText?.error || "Failed to request theme. Check server logs."
       );
-      setIssueLoading(false);
+      setCreatingTheme(false);
       return;
     }
 
     const json = await response.json();
-    setIssueMessage(`Created issue #${json.issue.number}`);
-    setThemeTitle("");
-    setThemeNotes("");
-    setIssueLoading(false);
+    setThemeMessage(
+      `Theme "${json.theme?.title ?? themeForm.title}" queued with status ${
+        json.theme?.status ?? "requested"
+      }.`
+    );
+    setThemeForm((prev) => ({
+      ...emptyTheme,
+      event_id: prev.event_id,
+    }));
+    setCreatingTheme(false);
+    void refreshData();
+  };
+
+  const toggleThemeEnabled = async (theme: Theme) => {
+    setUpdatingThemeId(theme.id);
+    const { error } = await supabase
+      .from("themes")
+      .update({ enabled: !theme.enabled })
+      .eq("id", theme.id);
+
+    if (error) {
+      setThemeMessage("Failed to update theme visibility.");
+    }
+
+    setUpdatingThemeId(null);
+    void refreshData();
+  };
+
+  const updateThemeStatus = async (
+    theme: Theme,
+    status: ThemeStatus
+  ) => {
+    setUpdatingThemeId(theme.id);
+    const { error } = await supabase
+      .from("themes")
+      .update({ status })
+      .eq("id", theme.id);
+
+    if (error) {
+      setThemeMessage("Failed to update theme status.");
+    }
+
+    setUpdatingThemeId(null);
+    void refreshData();
   };
 
   const logout = async () => {
@@ -251,12 +364,20 @@ export default function AdminDashboard() {
         <p className="text-[var(--muted)]">
           You need to log in to access the CMS.
         </p>
-        <button
-          onClick={() => router.push("/login")}
-          className="rounded-full bg-[var(--accent-strong)] px-5 py-3 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30"
-        >
-          Go to login
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => router.push("/login")}
+            className="rounded-full bg-[var(--accent-strong)] px-5 py-3 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30"
+          >
+            Go to login
+          </button>
+          <Link
+            href="/"
+            className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            Back to storefront
+          </Link>
+        </div>
       </main>
     );
   }
@@ -270,16 +391,24 @@ export default function AdminDashboard() {
           </p>
           <h1 className="text-3xl font-semibold">Admin dashboard</h1>
           <p className="text-[var(--muted)]">
-            Manage products, events, and send a Codex theme request straight to
-            GitHub.
+            Manage products, events, and Codex-built themes tied to your event
+            schedule.
           </p>
         </div>
-        <button
-          onClick={logout}
-          className="self-start rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
-        >
-          Sign out
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href="/"
+            className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            ← Back to storefront
+          </Link>
+          <button
+            onClick={logout}
+            className="self-start rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
@@ -341,6 +470,44 @@ export default function AdminDashboard() {
                 }
                 className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
+            </label>
+
+            <label className="text-sm text-[var(--muted)]">
+              Image URL
+              <input
+                value={productForm.image_url}
+                onChange={(e) =>
+                  setProductForm((p) => ({ ...p, image_url: e.target.value }))
+                }
+                placeholder="https://example.com/image.jpg"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              />
+              <span className="mt-1 block text-xs text-[var(--muted)]">
+                Paste a hosted image URL or upload below.
+              </span>
+            </label>
+
+            <label className="text-sm text-[var(--muted)]">
+              Upload image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-2 text-[var(--foreground)] file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-2 file:text-[#0c1a26]"
+              />
+              <span className="mt-1 block text-xs text-[var(--muted)]">
+                Uploads go to the `product-images` bucket and auto-fill the URL.
+              </span>
+              {uploadingImage && (
+                <span className="mt-1 block text-xs text-[var(--accent)]">
+                  Uploading…
+                </span>
+              )}
+              {uploadError && (
+                <span className="mt-1 block text-xs text-red-200">
+                  {uploadError}
+                </span>
+              )}
             </label>
 
             <label className="text-sm text-[var(--muted)]">
@@ -574,45 +741,139 @@ export default function AdminDashboard() {
                   No events. Add one above.
                 </p>
               ) : (
-                events.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-white/5 p-4"
-                  >
-                    <div className="flex items-center gap-2 text-[var(--muted)]">
-                      <span className="text-xs uppercase tracking-[0.2em]">
-                        {item.status}
-                      </span>
-                      {item.starts_at && (
-                        <span className="text-xs text-[var(--accent)]">
-                          {new Date(item.starts_at).toLocaleString()}
+                events.map((item) => {
+                  const eventThemes = themes.filter(
+                    (theme) => theme.event_id === item.id
+                  );
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-white/5 p-4"
+                    >
+                      <div className="flex items-center gap-2 text-[var(--muted)]">
+                        <span className="text-xs uppercase tracking-[0.2em]">
+                          {item.status}
                         </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <h3 className="text-lg font-semibold">{item.title}</h3>
-                        <p className="text-sm text-[var(--muted)]">
-                          {item.description || "No description"}
-                        </p>
+                        {item.starts_at && (
+                          <span className="text-xs text-[var(--accent)]">
+                            {new Date(item.starts_at).toLocaleString()}
+                          </span>
+                        )}
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEventEdit(item)}
-                          className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteEvent(item.id)}
-                          className="rounded-full border border-red-400/40 px-3 py-1 text-xs font-semibold text-red-200 transition hover:border-red-300 hover:text-red-100"
-                        >
-                          Delete
-                        </button>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            {item.title}
+                          </h3>
+                          <p className="text-sm text-[var(--muted)]">
+                            {item.description || "No description"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEventEdit(item)}
+                            className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => deleteEvent(item.id)}
+                            className="rounded-full border border-red-400/40 px-3 py-1 text-xs font-semibold text-red-200 transition hover:border-red-300 hover:text-red-100"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-[var(--border)] bg-black/20 p-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                            Themes tied to this event
+                          </p>
+                          <span className="text-xs text-[var(--muted)]">
+                            {eventThemes.length} linked
+                          </span>
+                        </div>
+                        {eventThemes.length === 0 ? (
+                          <p className="mt-2 text-xs text-[var(--muted)]">
+                            No themes yet. Use the Codex builder below to
+                            request one.
+                          </p>
+                        ) : (
+                          <div className="mt-2 space-y-2">
+                            {eventThemes.map((theme) => (
+                              <div
+                                key={theme.id}
+                                className="flex flex-col gap-2 rounded-lg border border-[var(--border)] bg-white/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+                              >
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className={clsx(
+                                        "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]",
+                                        theme.status === "ready"
+                                          ? "bg-emerald-500/15 text-[var(--accent)]"
+                                          : theme.status === "failed"
+                                          ? "bg-red-500/20 text-red-200"
+                                          : "bg-white/10 text-[var(--muted)]"
+                                      )}
+                                    >
+                                      {theme.status}
+                                    </span>
+                                    {theme.issue_number && (
+                                      <span className="text-xs text-[var(--muted)]">
+                                        Issue #{theme.issue_number}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm font-semibold">
+                                    {theme.title}
+                                  </p>
+                                  <p className="text-xs text-[var(--muted)]">
+                                    {theme.notes || "No notes for Codex"}
+                                  </p>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <select
+                                    value={theme.status}
+                                    onChange={(e) =>
+                                      updateThemeStatus(
+                                        theme,
+                                        e.target.value as ThemeStatus
+                                      )
+                                    }
+                                    disabled={updatingThemeId === theme.id}
+                                    className="rounded-full border border-[var(--border)] bg-transparent px-3 py-1 text-xs font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--accent)]"
+                                  >
+                                    <option value="requested">Requested</option>
+                                    <option value="building">Building</option>
+                                    <option value="ready">Ready</option>
+                                    <option value="failed">Failed</option>
+                                  </select>
+                                  <button
+                                    onClick={() => toggleThemeEnabled(theme)}
+                                    disabled={updatingThemeId === theme.id}
+                                    className={clsx(
+                                      "rounded-full border px-3 py-1 text-xs font-semibold transition",
+                                      theme.enabled
+                                        ? "border-emerald-300/60 text-emerald-200 hover:border-emerald-200"
+                                        : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]",
+                                      updatingThemeId === theme.id &&
+                                        "opacity-60"
+                                    )}
+                                  >
+                                    {theme.enabled ? "Disable" : "Enable"}
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -622,49 +883,119 @@ export default function AdminDashboard() {
               Codex
             </p>
             <h2 className="text-xl font-semibold">
-              Generate a new theme with a GitHub issue
+              Request a new theme for an event
             </h2>
             <p className="text-[var(--muted)]">
-              Submit a request and the GitHub Action will run{" "}
-              <code>openai/codex-action@v1</code> to build a theme branch and
-              open a PR.
+              Every theme is tied to an event. Submit a request to open a Codex
+              GitHub issue and track build status right here. Once the PR is
+              merged, enable the theme from the event card below.
             </p>
 
-            <form onSubmit={submitThemeIssue} className="mt-4 space-y-3">
+            <form onSubmit={handleThemeSubmit} className="mt-4 space-y-3">
               <label className="block text-sm text-[var(--muted)]">
-                Issue title
+                Event
+                <select
+                  required
+                  value={themeForm.event_id}
+                  onChange={(e) =>
+                    setThemeForm((p) => ({ ...p, event_id: e.target.value }))
+                  }
+                  disabled={events.length === 0}
+                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] disabled:opacity-60"
+                >
+                  <option value="" disabled>
+                    Select an event
+                  </option>
+                  {events.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-sm text-[var(--muted)]">
+                Theme title
                 <input
                   required
-                  value={themeTitle}
-                  onChange={(e) => setThemeTitle(e.target.value)}
-                  placeholder="Ex: Generate a neon storefront theme"
+                  value={themeForm.title}
+                  onChange={(e) =>
+                    setThemeForm((p) => ({ ...p, title: e.target.value }))
+                  }
+                  placeholder="Ex: Neon storefront theme"
                   className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
+
               <label className="block text-sm text-[var(--muted)]">
                 Notes for Codex
                 <textarea
-                  value={themeNotes}
-                  onChange={(e) => setThemeNotes(e.target.value)}
+                  value={themeForm.notes}
+                  onChange={(e) =>
+                    setThemeForm((p) => ({ ...p, notes: e.target.value }))
+                  }
                   rows={3}
                   placeholder="Colors, vibe, constraints…"
                   className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
+
               <button
                 type="submit"
-                disabled={issueLoading}
+                disabled={creatingTheme || events.length === 0}
                 className="rounded-full bg-[var(--accent-strong)] px-5 py-2 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-60"
               >
-                {issueLoading ? "Submitting..." : "Create GitHub issue"}
+                {creatingTheme ? "Queuing..." : "Request theme"}
               </button>
             </form>
 
-            {issueMessage && (
+            {themeMessage && (
               <p className="mt-3 rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-sm text-[var(--foreground)]">
-                {issueMessage}
+                {themeMessage}
               </p>
             )}
+
+            <div className="mt-6 space-y-2">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+                Latest theme requests
+              </p>
+              {themes.length === 0 ? (
+                <p className="text-sm text-[var(--muted)]">
+                  No theme requests yet. Create one above.
+                </p>
+              ) : (
+                themes.slice(0, 3).map((theme) => {
+                  const themeEvent = events.find(
+                    (event) => event.id === theme.event_id
+                  );
+                  return (
+                    <div
+                      key={theme.id}
+                      className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold">{theme.title}</p>
+                        <p className="text-xs text-[var(--muted)]">
+                          {themeEvent?.title || "Unknown event"}
+                        </p>
+                      </div>
+                      <span
+                        className={clsx(
+                          "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]",
+                          theme.status === "ready"
+                            ? "bg-emerald-500/15 text-[var(--accent)]"
+                            : theme.status === "failed"
+                            ? "bg-red-500/20 text-red-200"
+                            : "bg-white/10 text-[var(--muted)]"
+                        )}
+                      >
+                        {theme.status}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       </section>

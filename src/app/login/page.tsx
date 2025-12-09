@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
@@ -32,7 +33,15 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="mx-auto max-w-lg rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-black/30">
+    <main className="mx-auto max-w-lg space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-black/30">
+      <div className="flex items-center justify-between text-sm">
+        <Link
+          href="/"
+          className="rounded-full border border-[var(--border)] px-4 py-2 transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          ← Back to storefront
+        </Link>
+      </div>
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.2em] text-[var(--muted)]">
           Admin access
