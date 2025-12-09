@@ -48,6 +48,12 @@ const defaultHeroHighlight = [
   "Live inventory sync",
 ];
 
+const winterHeroHighlight = [
+  "Snow-soft gift wrap included",
+  "Free shipping over $50",
+  "Cocoa-friendly packaging",
+];
+
 const newYearsHeroHighlight = [
   "Midnight delivery upgrades",
   "Extended returns through Jan 10",
@@ -85,6 +91,8 @@ const curatedByKeyword: Record<string, string> = {
   camera:
     "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80",
 };
+
+const christmasEventId = "6a85bd59-bfb2-4593-bb06-0f2544cc8085";
 
 function toSlug(text: string) {
   return text
@@ -137,53 +145,78 @@ export default async function Home() {
   const heroProduct = products[0];
   const themeFlag =
     activeTheme?.title?.trim() ? toSlug(activeTheme.title) : null;
+  const enableWinterWonderland = themeFlag === "winter-wonderland";
   const enableNewYears = themeFlag === "new-years-event";
   const enableMerryTheme = themeFlag === "merry-christmas";
   const heroHeading = enableNewYears
     ? "Midnight Countdown Market — vibrant drops for the year ahead."
-    : enableMerryTheme
-      ? "Merry Market Supply — a cozy gifting storefront powered by Codex + Supabase."
-      : "Night Market Supply — a one-page storefront powered by Codex + Supabase.";
+    : enableWinterWonderland
+      ? "Winter Wonderland Supply — a snow-dusted Christmas Sale."
+      : enableMerryTheme
+        ? "Merry Market Supply — a cozy gifting storefront powered by Codex + Supabase."
+        : "Night Market Supply — a one-page storefront powered by Codex + Supabase.";
   const heroDescription = enableNewYears
     ? "Sparkling merch, winter tech, and coffee gear ready before the countdown. Publish in the admin, keep stock live, and flip the vibe with a theme toggle."
-    : enableMerryTheme
-      ? "Cheerful merch, beans, and tech wrapped up for the season. Publish in the admin, let the elves fulfill live inventory, and refresh the vibe with a single theme flag."
-      : "Merch, tech, coffee gear, whatever you dream up. Publish in the admin, let customers browse here. Codex can even ship a new theme via GitHub PR.";
+    : enableWinterWonderland
+      ? "Snowy layers, crisp blues, and frosted cards spotlight the Christmas Sale. Publish merch in admin, keep inventory live, and let one theme flag repaint the storefront."
+      : enableMerryTheme
+        ? "Cheerful merch, beans, and tech wrapped up for the season. Publish in the admin, let the elves fulfill live inventory, and refresh the vibe with a single theme flag."
+        : "Merch, tech, coffee gear, whatever you dream up. Publish in the admin, let customers browse here. Codex can even ship a new theme via GitHub PR.";
   const heroHighlight = enableNewYears
     ? newYearsHeroHighlight
-    : enableMerryTheme
-      ? festiveHeroHighlight
-      : defaultHeroHighlight;
+    : enableWinterWonderland
+      ? winterHeroHighlight
+      : enableMerryTheme
+        ? festiveHeroHighlight
+        : defaultHeroHighlight;
   const heroCtaLabel = enableNewYears
     ? "Shop the countdown"
-    : enableMerryTheme
-      ? "Shop holiday picks"
-      : "Shop the collection";
+    : enableWinterWonderland
+      ? "Shop the Christmas Sale"
+      : enableMerryTheme
+        ? "Shop holiday picks"
+        : "Shop the collection";
   const stockBadgeLabel = enableNewYears
     ? "Ready before midnight"
-    : enableMerryTheme
-      ? "North Pole ready"
-      : "In stock";
+    : enableWinterWonderland
+      ? "Chilled in stock"
+      : enableMerryTheme
+        ? "North Pole ready"
+        : "In stock";
   const addToCartLabel = enableNewYears
     ? "Add to countdown bag"
-    : enableMerryTheme
-      ? "Add to sleigh"
-      : "Add to bag";
+    : enableWinterWonderland
+      ? "Add to winter bag"
+      : enableMerryTheme
+        ? "Add to sleigh"
+        : "Add to bag";
   const eventsHeading = enableNewYears
     ? "Countdown calendar"
-    : enableMerryTheme
-      ? "Holiday happenings"
-      : "In-store happenings";
+    : enableWinterWonderland
+      ? "Snowy happenings"
+      : enableMerryTheme
+        ? "Holiday happenings"
+        : "In-store happenings";
 
   return (
     <main
       data-theme={themeFlag ?? undefined}
       className={`flex flex-col gap-10 pb-16 ${
+        enableWinterWonderland
+          ? "ww-shell relative overflow-hidden rounded-[28px] bg-[var(--background)]/92 shadow-[0_20px_110px_rgba(0,0,0,0.6)] backdrop-blur-md"
+          : ""
+      } ${
         enableMerryTheme
           ? "relative overflow-hidden rounded-[28px] border border-[var(--border)] bg-[var(--background)]/95 shadow-[0_20px_110px_rgba(0,0,0,0.55)] backdrop-blur-md"
           : ""
       } ${enableNewYears ? "ny-shell relative overflow-hidden rounded-[28px] bg-[var(--background)]/90 backdrop-blur-md" : ""}`}
     >
+      {enableWinterWonderland ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 rounded-[28px] border border-white/5 bg-[radial-gradient(circle_at_16%_18%,rgba(255,255,255,0.18),transparent_30%),radial-gradient(circle_at_76%_6%,rgba(138,214,255,0.14),transparent_28%),radial-gradient(circle_at_48%_82%,rgba(217,241,255,0.12),transparent_34%)]"
+        />
+      ) : null}
       {enableMerryTheme ? (
         <div
           aria-hidden="true"
@@ -200,33 +233,39 @@ export default async function Home() {
 
       <section
         className={`grid gap-6 rounded-3xl border border-[var(--border)] bg-[var(--card)]/80 p-8 shadow-2xl shadow-black/40 backdrop-blur lg:grid-cols-[1.2fr_0.8fr] ${
-          enableMerryTheme ? "festive-hero" : ""
-        } ${enableNewYears ? "ny-hero" : ""}`}
+          enableWinterWonderland ? "ww-hero" : ""
+        } ${enableMerryTheme ? "festive-hero" : ""} ${enableNewYears ? "ny-hero" : ""}`}
       >
         <div className="space-y-5">
           <div
             className={`inline-flex items-center gap-2 rounded-full border border-emerald-400/30 px-4 py-1 text-xs uppercase tracking-[0.2em] ${
-              enableMerryTheme
-                ? "festive-ribbon"
-                : enableNewYears
-                  ? "ny-ribbon"
-                  : "bg-emerald-500/10 text-emerald-100"
+              enableWinterWonderland
+                ? "ww-ribbon"
+                : enableMerryTheme
+                  ? "festive-ribbon"
+                  : enableNewYears
+                    ? "ny-ribbon"
+                    : "bg-emerald-500/10 text-emerald-100"
             }`}
           >
             <span>
               {enableNewYears
                 ? "New years event"
-                : enableMerryTheme
-                  ? "Holiday shop open"
-                  : "New drop"}
+                : enableWinterWonderland
+                  ? "Christmas sale"
+                  : enableMerryTheme
+                    ? "Holiday shop open"
+                    : "New drop"}
             </span>
             <span
               className={`rounded-full px-2 py-0.5 font-semibold ${
-                enableMerryTheme
-                  ? "bg-white/80 text-[#0c1a26]"
-                  : enableNewYears
-                    ? "bg-white/90 text-[#0c1a26]"
-                    : "bg-white/20 text-[#0c1a26]"
+                enableWinterWonderland
+                  ? "bg-white/95 text-[#0b1420]"
+                  : enableMerryTheme
+                    ? "bg-white/80 text-[#0c1a26]"
+                    : enableNewYears
+                      ? "bg-white/90 text-[#0c1a26]"
+                      : "bg-white/20 text-[#0c1a26]"
               }`}
             >
               {products.length} items
@@ -244,15 +283,25 @@ export default async function Home() {
             <Link
               href="#products"
               className={`rounded-full px-6 py-3 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30 ${
-                enableMerryTheme
-                  ? "festive-button bg-[var(--accent)] text-[#0c0f0b]"
-                  : enableNewYears
-                    ? "ny-button bg-[var(--accent)] text-[#0b0f1a]"
-                    : "bg-[var(--accent-strong)]"
+                enableWinterWonderland
+                  ? "ww-button bg-[var(--accent)] text-[#0a1420]"
+                  : enableMerryTheme
+                    ? "festive-button bg-[var(--accent)] text-[#0c0f0b]"
+                    : enableNewYears
+                      ? "ny-button bg-[var(--accent)] text-[#0b0f1a]"
+                      : "bg-[var(--accent-strong)]"
               }`}
             >
               {heroCtaLabel}
             </Link>
+            {enableWinterWonderland ? (
+              <Link
+                href="#events"
+                className="rounded-full border border-[var(--border)] bg-white/10 px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              >
+                See snowbound events
+              </Link>
+            ) : null}
             {enableMerryTheme ? (
               <Link
                 href="#events"
@@ -275,8 +324,8 @@ export default async function Home() {
               <div
                 key={item}
                 className={`rounded-full border border-[var(--border)] bg-white/5 px-4 py-2 text-sm text-[var(--muted)] ${
-                  enableMerryTheme ? "festive-chip" : ""
-                } ${enableNewYears ? "ny-chip" : ""}`}
+                  enableWinterWonderland ? "ww-chip" : ""
+                } ${enableMerryTheme ? "festive-chip" : ""} ${enableNewYears ? "ny-chip" : ""}`}
               >
                 {item}
               </div>
@@ -286,14 +335,16 @@ export default async function Home() {
 
         <div
           className={`relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#102436] via-[#0c1928] to-[#08131e] p-4 shadow-xl shadow-black/40 ${
-            enableMerryTheme ? "festive-card" : ""
-          } ${enableNewYears ? "ny-card" : ""}`}
+            enableWinterWonderland ? "ww-card" : ""
+          } ${enableMerryTheme ? "festive-card" : ""} ${enableNewYears ? "ny-card" : ""}`}
         >
           <div
             className={`absolute inset-0 ${
-              enableNewYears
-                ? "bg-[radial-gradient(circle_at_18%_22%,rgba(154,226,255,0.18),transparent_35%),radial-gradient(circle_at_78%_6%,rgba(245,213,107,0.16),transparent_32%)]"
-                : "bg-[radial-gradient(circle_at_20%_20%,rgba(124,241,200,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(74,225,174,0.15),transparent_30%)]"
+              enableWinterWonderland
+                ? "bg-[radial-gradient(circle_at_18%_22%,rgba(217,241,255,0.22),transparent_34%),radial-gradient(circle_at_78%_6%,rgba(138,214,255,0.16),transparent_30%)]"
+                : enableNewYears
+                  ? "bg-[radial-gradient(circle_at_18%_22%,rgba(154,226,255,0.18),transparent_35%),radial-gradient(circle_at_78%_6%,rgba(245,213,107,0.16),transparent_32%)]"
+                  : "bg-[radial-gradient(circle_at_20%_20%,rgba(124,241,200,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(74,225,174,0.15),transparent_30%)]"
             }`}
           />
           <div className="relative flex h-full flex-col justify-between rounded-xl bg-black/25 p-4">
@@ -301,16 +352,20 @@ export default async function Home() {
               <span>
                 {enableNewYears
                   ? "New years pick"
-                  : enableMerryTheme
-                    ? "Featured gift"
-                    : "Featured"}
+                  : enableWinterWonderland
+                    ? "Snow day pick"
+                    : enableMerryTheme
+                      ? "Featured gift"
+                      : "Featured"}
               </span>
               <span className="rounded-full bg-white/10 px-3 py-1 text-[0.7rem] font-semibold text-[var(--accent)]">
                 {enableNewYears
                   ? "Ships before midnight"
-                  : enableMerryTheme
-                    ? "Wrapped today"
-                    : "Ready to ship"}
+                  : enableWinterWonderland
+                    ? "Frost protected"
+                    : enableMerryTheme
+                      ? "Wrapped today"
+                      : "Ready to ship"}
               </span>
             </div>
             <div className="mt-3 overflow-hidden rounded-xl border border-white/5">
@@ -368,9 +423,11 @@ export default async function Home() {
             <h2 className="text-3xl font-semibold">
               {enableNewYears
                 ? "Countdown exclusives"
-                : enableMerryTheme
-                  ? "Fresh from the North Pole"
-                  : "Fresh arrivals"}
+                : enableWinterWonderland
+                  ? "Snowfield exclusives"
+                  : enableMerryTheme
+                    ? "Fresh from the North Pole"
+                    : "Fresh arrivals"}
             </h2>
           </div>
           <AuthOnly>
@@ -393,8 +450,8 @@ export default async function Home() {
               <article
                 key={product.id}
                 className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-md shadow-black/30 transition hover:-translate-y-1 hover:border-[var(--accent)] ${
-                  enableMerryTheme ? "festive-card" : ""
-                } ${enableNewYears ? "ny-card" : ""}`}
+                  enableWinterWonderland ? "ww-card" : ""
+                } ${enableMerryTheme ? "festive-card" : ""} ${enableNewYears ? "ny-card" : ""}`}
               >
                 <div className="relative overflow-hidden rounded-xl">
                   <div className="aspect-[4/3] w-full bg-black/20">
@@ -407,8 +464,8 @@ export default async function Home() {
                   </div>
                   <div
                     className={`absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-[var(--muted)] ${
-                      enableMerryTheme ? "festive-label" : ""
-                    } ${enableNewYears ? "ny-label" : ""}`}
+                      enableWinterWonderland ? "ww-label" : ""
+                    } ${enableMerryTheme ? "festive-label" : ""} ${enableNewYears ? "ny-label" : ""}`}
                   >
                     {stockBadgeLabel}
                   </div>
@@ -427,11 +484,15 @@ export default async function Home() {
                     <span className="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">
                       {enableNewYears
                         ? "Ahead of midnight"
-                        : enableMerryTheme
-                          ? "Packed with care"
-                          : "On hand"}
+                        : enableWinterWonderland
+                          ? "Snow-safe"
+                          : enableMerryTheme
+                            ? "Packed with care"
+                            : "On hand"}
                     </span>
-                    <button className="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-black/30">
+                    <button className={`rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-[#0c1a26] transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-black/30 ${
+                      enableWinterWonderland ? "ww-button" : ""
+                    }`}>
                       {addToCartLabel}
                     </button>
                   </div>
@@ -445,35 +506,41 @@ export default async function Home() {
       <section className="grid gap-4 sm:grid-cols-3">
         <div
           className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-white/10 via-[var(--card)] to-black/30 p-5 shadow-lg shadow-black/30 ${
-            enableMerryTheme ? "festive-subtle" : ""
-          } ${enableNewYears ? "ny-subtle" : ""}`}
+            enableWinterWonderland ? "ww-subtle" : ""
+          } ${enableMerryTheme ? "festive-subtle" : ""} ${enableNewYears ? "ny-subtle" : ""}`}
         >
           <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
             {enableNewYears
               ? "Glow ready"
-              : enableMerryTheme
-                ? "Gifts ready"
-                : "Merch ready"}
+              : enableWinterWonderland
+                ? "Snow ready"
+                : enableMerryTheme
+                  ? "Gifts ready"
+                  : "Merch ready"}
           </p>
           <h3 className="text-xl font-semibold">
             {enableNewYears
               ? "Shine-proof lineup"
-              : enableMerryTheme
-                ? "Wrapped & ready"
-                : "Lifestyle ready"}
+              : enableWinterWonderland
+                ? "Frost-ready lineup"
+                : enableMerryTheme
+                  ? "Wrapped & ready"
+                  : "Lifestyle ready"}
           </h3>
           <p className="text-sm text-[var(--muted)]">
             {enableNewYears
               ? "Frosty brews, gadgets, tees—swap the catalog for the event and keep the countdown stocked without touching code."
-              : enableMerryTheme
-                ? "Scarves, gadgets, beans—swap the catalog and the elves ship it. Add gift notes without touching the code."
-                : "Tees, prints, coffee gear, gadgets. Swap the catalog in admin and ship instantly."}
+              : enableWinterWonderland
+                ? "Wool, gadgets, beans—swap the catalog for the Christmas Sale and keep the snow globe feeling without touching code."
+                : enableMerryTheme
+                  ? "Scarves, gadgets, beans—swap the catalog and the elves ship it. Add gift notes without touching the code."
+                  : "Tees, prints, coffee gear, gadgets. Swap the catalog in admin and ship instantly."}
           </p>
         </div>
         <div
           className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#102a1f] via-[#0c1f15] to-[#0a1712] p-5 shadow-lg shadow-black/30 ${
-            enableMerryTheme ? "festive-subtle" : ""
-          } ${enableNewYears ? "ny-subtle" : ""}`}
+            enableWinterWonderland ? "ww-subtle" : ""
+          } ${enableMerryTheme ? "festive-subtle" : ""} ${enableNewYears ? "ny-subtle" : ""}`}
         >
           <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
             Verified
@@ -481,22 +548,26 @@ export default async function Home() {
           <h3 className="text-xl font-semibold">
             {enableNewYears
               ? "Crew-only perks"
-              : enableMerryTheme
-                ? "Workshop perks"
-                : "Logged-in perks"}
+              : enableWinterWonderland
+                ? "Cabin-only perks"
+                : enableMerryTheme
+                  ? "Workshop perks"
+                  : "Logged-in perks"}
           </h3>
           <p className="text-sm text-[var(--muted)]">
             {enableNewYears
               ? "Admins see the dashboard link for last-minute tweaks. Sign out from the nav once the confetti clears."
-              : enableMerryTheme
-                ? "The admin link appears for trusted helpers only. Sign out from the nav once the list is checked twice."
-                : "Authenticated users see the admin dashboard link. Sign out from the nav when you're done."}
+              : enableWinterWonderland
+                ? "Admins see the dashboard link for snug updates. Sign out from the nav when the chalet closes."
+                : enableMerryTheme
+                  ? "The admin link appears for trusted helpers only. Sign out from the nav once the list is checked twice."
+                  : "Authenticated users see the admin dashboard link. Sign out from the nav when you're done."}
           </p>
         </div>
         <div
           className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#142437] via-[#0f1c2c] to-[#0a1622] p-5 shadow-lg shadow-black/30 ${
-            enableMerryTheme ? "festive-subtle" : ""
-          } ${enableNewYears ? "ny-subtle" : ""}`}
+            enableWinterWonderland ? "ww-subtle" : ""
+          } ${enableMerryTheme ? "festive-subtle" : ""} ${enableNewYears ? "ny-subtle" : ""}`}
         >
           <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
             Events ready
@@ -504,16 +575,20 @@ export default async function Home() {
           <h3 className="text-xl font-semibold">
             {enableNewYears
               ? "New years rhythm"
-              : enableMerryTheme
-                ? "Seasonal rhythm"
-                : "Campaign rhythm"}
+              : enableWinterWonderland
+                ? "Snowfall rhythm"
+                : enableMerryTheme
+                  ? "Seasonal rhythm"
+                  : "Campaign rhythm"}
           </h3>
           <p className="text-sm text-[var(--muted)]">
             {enableNewYears
               ? "Publish countdown streams, tastings, or drop parties so visitors never miss the next minute."
-              : enableMerryTheme
-                ? "Publish cocoa tastings, cozy livestreams, or wrap-alongs to keep visitors in the loop."
-                : "Publish launch parties, tastings, or livestreams to keep visitors in the loop."}
+              : enableWinterWonderland
+                ? "Publish cocoa tastings, twilight livestreams, or chalet pop-ups so the Christmas Sale stays lively."
+                : enableMerryTheme
+                  ? "Publish cocoa tastings, cozy livestreams, or wrap-alongs to keep visitors in the loop."
+                  : "Publish launch parties, tastings, or livestreams to keep visitors in the loop."}
           </p>
         </div>
       </section>
@@ -539,9 +614,11 @@ export default async function Home() {
           <p className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--muted)]">
             {enableNewYears
               ? "No countdown moments yet. Add a celebration from the admin area."
-              : enableMerryTheme
-                ? "No events scheduled yet. Add a cozy gathering from the admin area."
-                : "No events scheduled. Add one from the admin area."}
+              : enableWinterWonderland
+                ? "No snowy gatherings yet. Add a Christmas Sale moment from the admin area."
+                : enableMerryTheme
+                  ? "No events scheduled yet. Add a cozy gathering from the admin area."
+                  : "No events scheduled. Add one from the admin area."}
           </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
@@ -549,8 +626,8 @@ export default async function Home() {
               <article
                 key={event.id}
                 className={`flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-md shadow-black/30 ${
-                  enableMerryTheme ? "festive-card" : ""
-                } ${enableNewYears ? "ny-card" : ""}`}
+                  enableWinterWonderland ? "ww-card" : ""
+                } ${enableMerryTheme ? "festive-card" : ""} ${enableNewYears ? "ny-card" : ""}`}
               >
                 {event.starts_at && (
                   <div className="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">
@@ -559,6 +636,11 @@ export default async function Home() {
                     </span>
                   </div>
                 )}
+                {enableWinterWonderland && event.id === christmasEventId ? (
+                  <span className="ww-chip inline-flex w-fit items-center gap-2 rounded-full px-4 py-1 text-[0.75rem] font-semibold uppercase tracking-[0.2em]">
+                    Christmas Sale feature
+                  </span>
+                ) : null}
                 <div className="space-y-1">
                   <h3 className="text-xl font-semibold">{event.title}</h3>
                   <p className="text-sm text-[var(--muted)]">

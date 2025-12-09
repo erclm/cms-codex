@@ -259,6 +259,129 @@
     0 0 0 1px rgba(245, 213, 107, 0.55);
 }
 
+[data-theme="winter-wonderland"] {
+  --background: #0b1526;
+  --foreground: #f3f7ff;
+  --muted: #c8d6e8;
+  --card: rgba(255, 255, 255, 0.12);
+  --accent: #d9f1ff;
+  --accent-strong: #8ad6ff;
+  --border: rgba(255, 255, 255, 0.22);
+  --frost: rgba(203, 229, 255, 0.6);
+
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.18), transparent 32%),
+    radial-gradient(circle at 82% 12%, rgba(138, 214, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 48% 82%, rgba(255, 255, 255, 0.12), transparent 36%),
+    linear-gradient(155deg, #0b1526 0%, #0f2035 42%, #0a1424 100%);
+  color: var(--foreground);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+[data-theme="winter-wonderland"]::before {
+  content: "";
+  position: absolute;
+  inset: -16% -18%;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.24), transparent 32%),
+    radial-gradient(circle at 78% 10%, rgba(138, 214, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 50% 78%, rgba(217, 241, 255, 0.2), transparent 34%);
+  filter: blur(24px);
+  z-index: -1;
+  opacity: 0.85;
+}
+
+[data-theme="winter-wonderland"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 25%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 70% 18%, rgba(217, 241, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 48% 68%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 80% 54%, rgba(217, 241, 255, 0.4), transparent);
+  background-size: 180px 180px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.75;
+}
+
+[data-theme="winter-wonderland"] .ww-shell {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(217, 241, 255, 0.07), rgba(138, 214, 255, 0.1));
+  box-shadow:
+    0 20px 110px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(217, 241, 255, 0.18);
+}
+
+[data-theme="winter-wonderland"] .ww-hero {
+  border-color: rgba(217, 241, 255, 0.5);
+  background: linear-gradient(
+      155deg,
+      rgba(217, 241, 255, 0.16),
+      rgba(138, 214, 255, 0.12) 55%,
+      rgba(217, 241, 255, 0.14)
+    ),
+    var(--card);
+  box-shadow:
+    0 26px 90px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(217, 241, 255, 0.18);
+}
+
+[data-theme="winter-wonderland"] .ww-ribbon {
+  background: linear-gradient(120deg, rgba(217, 241, 255, 0.96), rgba(138, 214, 255, 0.92));
+  color: #0a1420;
+  border-color: rgba(217, 241, 255, 0.6);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="winter-wonderland"] .ww-chip {
+  border-color: rgba(217, 241, 255, 0.32);
+  background: rgba(8, 18, 36, 0.78);
+  color: #e9f4ff;
+}
+
+[data-theme="winter-wonderland"] .ww-card {
+  border-color: rgba(217, 241, 255, 0.3);
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.08), rgba(8, 16, 30, 0.9));
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(217, 241, 255, 0.12);
+}
+
+[data-theme="winter-wonderland"] .ww-card:hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 24px 52px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(217, 241, 255, 0.18);
+}
+
+[data-theme="winter-wonderland"] .ww-subtle {
+  background: linear-gradient(135deg, rgba(217, 241, 255, 0.11), rgba(138, 214, 255, 0.08));
+  border-color: rgba(217, 241, 255, 0.32);
+}
+
+[data-theme="winter-wonderland"] .ww-button {
+  box-shadow:
+    0 12px 34px rgba(217, 241, 255, 0.35),
+    0 0 0 1px rgba(138, 214, 255, 0.3);
+}
+
+[data-theme="winter-wonderland"] .ww-button:hover {
+  box-shadow:
+    0 14px 42px rgba(217, 241, 255, 0.48),
+    0 0 0 1px rgba(138, 214, 255, 0.42);
+}
+
+[data-theme="winter-wonderland"] .ww-label {
+  background: linear-gradient(125deg, rgba(217, 241, 255, 0.95), rgba(138, 214, 255, 0.9));
+  color: #0a1420;
+  border: 1px solid rgba(217, 241, 255, 0.55);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+}
+
 [data-theme="new-years-event"] .ny-label {
   background: linear-gradient(120deg, rgba(154, 226, 255, 0.9), rgba(245, 213, 107, 0.85));
   color: #0b0f1a;
