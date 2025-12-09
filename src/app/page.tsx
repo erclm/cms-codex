@@ -11,6 +11,7 @@ type ActiveTheme = Pick<Theme, "id" | "title" | "status" | "enabled" | "updated_
 async function loadContent() {
   const supabase = getSupabaseServerClient();
 
+  // Pull storefront-visible data in parallel: published products/events plus the latest ready+enabled theme.
   const [
     { data: products },
     { data: events },
@@ -110,6 +111,7 @@ const formatPrice = (price: number) =>
     minimumFractionDigits: 0,
   }).format(price / 100);
 
+// Choose the best available product photo while keeping the UI resilient when Supabase lacks an image.
 function getProductImage(product: Product) {
   const keyword = encodeURIComponent(product.slug || product.name || "product");
   const text = (product.slug || product.name || "").toLowerCase();
@@ -135,6 +137,7 @@ export default async function Home() {
   const { products, events, activeTheme } = await loadContent();
   const featuredProducts = products.slice(0, 6);
   const heroProduct = products[0];
+  // Theme flag is derived from the latest ready+enabled theme title to drive data-theme styling.
   const themeFlag =
     activeTheme?.title?.trim() ? toSlug(activeTheme.title) : null;
   const enableNewYears = themeFlag === "new-years-event";

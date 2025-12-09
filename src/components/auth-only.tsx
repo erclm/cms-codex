@@ -14,6 +14,7 @@ export default function AuthOnly({ children, fallback = null }: Props) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [state, setState] = useState<SessionState>("loading");
 
+  // Gate rendering on auth state and keep it in sync with Supabase session changes.
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setState(data.session ? "authed" : "guest");

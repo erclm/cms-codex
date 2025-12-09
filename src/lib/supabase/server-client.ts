@@ -11,6 +11,7 @@ export function getSupabaseServerClient() {
     );
   }
 
+  // Server-side client avoids session persistence so SSR data fetches stay stateless.
   return createClient<Database>(url, anonKey, {
     auth: {
       persistSession: false,

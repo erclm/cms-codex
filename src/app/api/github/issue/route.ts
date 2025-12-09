@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
+      // Keep Supabase auth cookies in sync with Next.js so API routes honor sessions.
       getAll() {
         return cookieStore.getAll();
       },

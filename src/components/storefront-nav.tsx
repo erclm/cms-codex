@@ -13,6 +13,7 @@ export default function StorefrontNav() {
   const [sessionState, setSessionState] =
     useState<SessionState>("loading");
 
+  // Subscribe to Supabase auth changes so the nav reacts to login/logout immediately.
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSessionState(data.session ? "authed" : "guest");

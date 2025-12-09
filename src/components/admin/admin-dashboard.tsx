@@ -102,6 +102,7 @@ export default function AdminDashboard() {
   const [creatingTheme, setCreatingTheme] = useState(false);
   const [updatingThemeId, setUpdatingThemeId] = useState<string | null>(null);
 
+  // Pull fresh rows for all dashboards panels.
   const refreshData = useCallback(async () => {
     const [{ data: productRows }, { data: eventRows }, { data: themeRows }] =
       await Promise.all([
@@ -139,6 +140,7 @@ export default function AdminDashboard() {
     }
   }, [events, themeForm.event_id]);
 
+  // Uploads product photos to the public storage bucket and injects the URL into the form.
   const handleImageUpload = async (file?: File | null) => {
     if (!file) return;
     setUploadError(null);
@@ -170,6 +172,7 @@ export default function AdminDashboard() {
     setUploadingImage(false);
   };
 
+  // Create/update a product row; slugs auto-generate if not provided.
   const handleProductSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSavingProduct(true);
@@ -272,6 +275,7 @@ export default function AdminDashboard() {
     void refreshData();
   };
 
+  // Creates a theme row and opens a GitHub issue so Codex can build it.
   const handleThemeSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setCreatingTheme(true);
@@ -316,6 +320,7 @@ export default function AdminDashboard() {
     void refreshData();
   };
 
+  // Flip the public visibility of a theme without touching other fields.
   const toggleThemeEnabled = async (theme: Theme) => {
     setUpdatingThemeId(theme.id);
     const { error } = await supabase
@@ -331,6 +336,7 @@ export default function AdminDashboard() {
     void refreshData();
   };
 
+  // Allow manual status corrections when the GitHub workflow updates the theme.
   const updateThemeStatus = async (
     theme: Theme,
     status: ThemeStatus

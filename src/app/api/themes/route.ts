@@ -27,6 +27,7 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
+      // Mirror the Next.js cookie store so auth helpers can read/write refresh tokens.
       getAll() {
         return cookieStore.getAll();
       },
@@ -125,6 +126,7 @@ export async function POST(request: Request) {
 
   try {
     const octokit = new Octokit({ auth: token });
+    // Pass the event/theme metadata to Codex via GitHub issue for traceability.
     const issueBodyLines = [
       notes?.trim() || "Generate a new storefront theme for the event.",
       "",

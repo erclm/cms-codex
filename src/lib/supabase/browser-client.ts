@@ -19,6 +19,7 @@ export function getSupabaseBrowserClient() {
     );
   }
 
+  // Cache a single browser client instance so components share auth/session state.
   client = createBrowserClient<Database>(url, anonKey);
   return client;
 }
