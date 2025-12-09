@@ -23,6 +23,15 @@ describe("codex theme workflow", () => {
     expect(workflowYaml).toMatch(/Keep generation quick/i);
   });
 
+  it("preserves prior themes and serializes runs per issue", () => {
+    expect(workflowYaml).toMatch(/Preserve existing theme definitions/i);
+    expect(workflowYaml).toMatch(/append a new data-theme block/i);
+    expect(workflowYaml).toMatch(
+      /concurrency:\s*\n\s*group:\s*codex-theme-\${{ github\.event\.issue\.number }}/i
+    );
+    expect(workflowYaml).toMatch(/cancel-in-progress:\s*true/i);
+  });
+
   it("checks out the default branch as the working base", () => {
     expect(workflowYaml).toMatch(
       /ref:\s*\${{\s*github\.event\.repository\.default_branch\s*}}/i
