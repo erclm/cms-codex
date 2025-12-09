@@ -1,4 +1,4 @@
-- Added a scoped New Years palette and component styles under `data-theme="new-years-event"` in `src/app/globals.css`, keeping prior themes intact while introducing aurora/gold accents, chips, buttons, cards, and shell treatments that only apply when the flag is on.
-- Updated `src/app/page.tsx` to recognize the `new-years-event` slug from Supabase, swap in New Years copy, highlights, badges, and CTA text, and apply the new scoped classes without touching base or other themes.
+Introduced an opt-in Vibrantcolors spring mood: new slug detection (`vibrantcolors`/`vibrant-colors`), refreshed hero/events/product copy, and scoped layout polish/classes so the base look stays unchanged when the theme flag is off (src/app/page.tsx).  
+Appended a dedicated Vibrantcolors design token block and component styles (vc-shell/hero/card/button/chip/subtle/label) without touching prior themes (src/app/globals.css).
 
-Tests not run (not requested). If you want to see the look, set a Supabase `themes` row with title “New years event” (status `ready`, `enabled` true) so the data-theme flag activates.
+Tests not run (not requested). Next steps: 1) Add/enable a Supabase `themes` row titled “Vibrantcolors” (status ready) to flip the toggle, 2) Smoke-check the storefront on mobile/desktop once enabled.

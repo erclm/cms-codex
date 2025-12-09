@@ -266,6 +266,142 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
+[data-theme="vibrantcolors"],
+[data-theme="vibrant-colors"] {
+  --background: #0c1024;
+  --foreground: #fefdfb;
+  --muted: #d6e3f2;
+  --card: rgba(255, 255, 255, 0.08);
+  --accent: #ff9c5c;
+  --accent-strong: #7cffe7;
+  --border: rgba(255, 168, 88, 0.32);
+  --frost: rgba(127, 186, 255, 0.22);
+
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 168, 88, 0.22), transparent 32%),
+    radial-gradient(circle at 78% 12%, rgba(120, 255, 231, 0.2), transparent 30%),
+    radial-gradient(circle at 46% 82%, rgba(127, 186, 255, 0.18), transparent 34%),
+    linear-gradient(140deg, #0a1226 0%, #0c162d 40%, #0d1a33 100%);
+  color: var(--foreground);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+[data-theme="vibrantcolors"]::before,
+[data-theme="vibrant-colors"]::before {
+  content: "";
+  position: absolute;
+  inset: -12% -14%;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 168, 88, 0.24), transparent 34%),
+    radial-gradient(circle at 80% 10%, rgba(127, 186, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 56% 74%, rgba(120, 255, 231, 0.18), transparent 32%);
+  filter: blur(26px);
+  z-index: -1;
+  opacity: 0.8;
+}
+
+[data-theme="vibrantcolors"]::after,
+[data-theme="vibrant-colors"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 16% 26%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 74% 16%, rgba(255, 168, 88, 0.5), transparent),
+    radial-gradient(1px 1px at 50% 68%, rgba(120, 255, 231, 0.45), transparent),
+    radial-gradient(1px 1px at 82% 54%, rgba(127, 186, 255, 0.4), transparent);
+  background-size: 190px 190px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+[data-theme="vibrantcolors"] .vc-shell,
+[data-theme="vibrant-colors"] .vc-shell {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(255, 168, 88, 0.08), rgba(120, 255, 231, 0.08));
+  box-shadow:
+    0 24px 110px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(120, 255, 231, 0.18);
+}
+
+[data-theme="vibrantcolors"] .vc-hero,
+[data-theme="vibrant-colors"] .vc-hero {
+  border-color: rgba(255, 168, 88, 0.4);
+  background: linear-gradient(
+      150deg,
+      rgba(120, 255, 231, 0.12),
+      rgba(127, 186, 255, 0.12) 50%,
+      rgba(255, 168, 88, 0.14)
+    ),
+    var(--card);
+  box-shadow:
+    0 24px 90px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 168, 88, 0.2);
+}
+
+[data-theme="vibrantcolors"] .vc-ribbon,
+[data-theme="vibrant-colors"] .vc-ribbon {
+  background: linear-gradient(120deg, rgba(255, 168, 88, 0.92), rgba(120, 255, 231, 0.9));
+  color: #0b0f1a;
+  border-color: rgba(127, 186, 255, 0.55);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.42);
+}
+
+[data-theme="vibrantcolors"] .vc-chip,
+[data-theme="vibrant-colors"] .vc-chip {
+  border-color: rgba(120, 255, 231, 0.28);
+  background: rgba(12, 20, 44, 0.82);
+  color: #f1f7ff;
+}
+
+[data-theme="vibrantcolors"] .vc-card,
+[data-theme="vibrant-colors"] .vc-card {
+  border-color: rgba(127, 186, 255, 0.26);
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.06), rgba(10, 18, 38, 0.92));
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 168, 88, 0.14);
+}
+
+[data-theme="vibrantcolors"] .vc-card:hover,
+[data-theme="vibrant-colors"] .vc-card:hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 24px 54px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(120, 255, 231, 0.24);
+}
+
+[data-theme="vibrantcolors"] .vc-button,
+[data-theme="vibrant-colors"] .vc-button {
+  box-shadow:
+    0 12px 34px rgba(255, 168, 88, 0.35),
+    0 0 0 1px rgba(120, 255, 231, 0.32);
+}
+
+[data-theme="vibrantcolors"] .vc-button:hover,
+[data-theme="vibrant-colors"] .vc-button:hover {
+  box-shadow:
+    0 14px 42px rgba(255, 168, 88, 0.42),
+    0 0 0 1px rgba(120, 255, 231, 0.42);
+}
+
+[data-theme="vibrantcolors"] .vc-subtle,
+[data-theme="vibrant-colors"] .vc-subtle {
+  background: linear-gradient(130deg, rgba(255, 168, 88, 0.1), rgba(120, 255, 231, 0.08));
+  border-color: rgba(127, 186, 255, 0.3);
+}
+
+[data-theme="vibrantcolors"] .vc-label,
+[data-theme="vibrant-colors"] .vc-label {
+  background: linear-gradient(120deg, rgba(120, 255, 231, 0.9), rgba(255, 168, 88, 0.88));
+  color: #0b0f1a;
+  border: 1px solid rgba(127, 186, 255, 0.6);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
 * {
   box-sizing: border-box;
 }
