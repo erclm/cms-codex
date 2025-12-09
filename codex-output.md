@@ -1,4 +1,7 @@
-- Added a scoped New Years palette and component styles under `data-theme="new-years-event"` in `src/app/globals.css`, keeping prior themes intact while introducing aurora/gold accents, chips, buttons, cards, and shell treatments that only apply when the flag is on.
-- Updated `src/app/page.tsx` to recognize the `new-years-event` slug from Supabase, swap in New Years copy, highlights, badges, and CTA text, and apply the new scoped classes without touching base or other themes.
+**Spring Theme Refresh**
+- Added a scoped `spring-launch/spring-colors` data-theme with light, vibrant tokens, gradients, and component treatments (`spring-*` classes) so only the Spring Launch flag restyles the storefront; base and prior themes stay untouched (`src/app/globals.css`).
+- Updated storefront hero/product/event copy and styling hooks to reflect the spring vibe when the theme slug matches, while keeping all data fetching and logic intact (`src/app/page.tsx`).
 
-Tests not run (not requested). If you want to see the look, set a Supabase `themes` row with title “New years event” (status `ready`, `enabled` true) so the data-theme flag activates.
+Tests not run (not requested).
+
+Next steps: 1) Create/enable a Supabase theme row titled “Spring Launch” (status `ready`, `enabled` true) to activate the look. 2) Preview the storefront to confirm the spring palette and text swap in.
