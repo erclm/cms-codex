@@ -33,3 +33,17 @@ body {
 a {
   color: inherit;
 }
+
+select {
+  background-color: #0f2335;
+  color: var(--foreground);
+}
+
+select option {
+  background-color: #0b1b2d;
+  color: var(--foreground);
+}
+
+select:disabled {
+  color: var(--muted);
+}

@@ -63,6 +63,12 @@ const emptyTheme: ThemeFormState = {
   notes: "",
 };
 
+const selectFieldClass =
+  "mt-1 w-full rounded-xl border border-white/15 bg-[#0f2335] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
+
+const compactSelectClass =
+  "rounded-full border border-white/20 bg-[#0f2335] px-3 py-1 text-xs font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
+
 function toSlug(text: string) {
   return text
     .toLowerCase()
@@ -473,6 +479,23 @@ export default function AdminDashboard() {
             </label>
 
             <label className="text-sm text-[var(--muted)]">
+              Status
+              <select
+                value={productForm.status}
+                onChange={(e) =>
+                  setProductForm((p) => ({
+                    ...p,
+                    status: e.target.value as ProductStatus,
+                  }))
+                }
+                className={selectFieldClass}
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </label>
+
+            <label className="text-sm text-[var(--muted)]">
               Image URL
               <input
                 value={productForm.image_url}
@@ -508,23 +531,6 @@ export default function AdminDashboard() {
                   {uploadError}
                 </span>
               )}
-            </label>
-
-            <label className="text-sm text-[var(--muted)]">
-              Status
-              <select
-                value={productForm.status}
-                onChange={(e) =>
-                  setProductForm((p) => ({
-                    ...p,
-                    status: e.target.value as ProductStatus,
-                  }))
-                }
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
-              >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-              </select>
             </label>
 
             <label className="sm:col-span-2 text-sm text-[var(--muted)]">
@@ -710,7 +716,7 @@ export default function AdminDashboard() {
                       status: e.target.value as "draft" | "published",
                     }))
                   }
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                  className={selectFieldClass}
                 >
                   <option value="published">Published</option>
                   <option value="draft">Draft</option>
@@ -844,7 +850,7 @@ export default function AdminDashboard() {
                                       )
                                     }
                                     disabled={updatingThemeId === theme.id}
-                                    className="rounded-full border border-[var(--border)] bg-transparent px-3 py-1 text-xs font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--accent)]"
+                                    className={compactSelectClass}
                                   >
                                     <option value="requested">Requested</option>
                                     <option value="building">Building</option>
@@ -897,16 +903,16 @@ export default function AdminDashboard() {
                 <select
                   required
                   value={themeForm.event_id}
-                  onChange={(e) =>
-                    setThemeForm((p) => ({ ...p, event_id: e.target.value }))
-                  }
-                  disabled={events.length === 0}
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] disabled:opacity-60"
-                >
-                  <option value="" disabled>
-                    Select an event
-                  </option>
-                  {events.map((event) => (
+                onChange={(e) =>
+                  setThemeForm((p) => ({ ...p, event_id: e.target.value }))
+                }
+                disabled={events.length === 0}
+                className={selectFieldClass}
+              >
+                <option value="" disabled>
+                  Select an event
+                </option>
+                {events.map((event) => (
                     <option key={event.id} value={event.id}>
                       {event.title}
                     </option>
