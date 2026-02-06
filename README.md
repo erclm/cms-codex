@@ -1,56 +1,102 @@
 # Codex CMS demo
 
-MVP storefront + admin for an ecommerce CMS. Built with Next.js (App Router), Tailwind, Supabase Auth/Postgres, and a GitHub Action that runs `openai/codex-action@v1` to generate new storefront themes from GitHub issues.
+Storefront + admin CMS demo built with Next.js, Supabase, and Codex-driven theme generation.  
+Current state includes:
+- Fixed theme request backend typing/build issues.
+- Refreshed modern UI for storefront, login, and admin.
+- Cloudflare Workers deployment support via OpenNext + Wrangler.
 
-## Stack and data model
-- Next.js 16 + App Router, Tailwind CSS, and a minimal component set.
-- Supabase: `products`, `events`, and `themes` tables with RLS; storage bucket `product-images` for uploads (public).
-- Auth: any authenticated user is treated as an admin for the demo.
-- Migrations live in `supabase/migrations` and seed sample products/events.
+## Stack
+- Next.js 16 (App Router) + Tailwind CSS.
+- Supabase Auth + Postgres + Storage.
+- GitHub issue-based Codex theme generation (`openai/codex-action@v1`).
+- Cloudflare Workers runtime via `@opennextjs/cloudflare`.
 
-## Prereqs and setup
-1) Install dependencies: `npm install`  
-2) Copy envs: `cp .env.local.example .env.local` and fill:
-   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` from your Supabase project.
-   - `GITHUB_TOKEN` (repo scope), `GITHUB_REPO_OWNER`, `GITHUB_REPO_NAME` so API routes and the workflow can open issues/commits.
-3) Apply Supabase migrations (via Supabase CLI or dashboard SQL) to create tables, RLS, seed rows, and the `product-images` bucket.
-4) Start local dev: `npm run dev` and open http://localhost:3000
+## Data model
+- `products`: storefront catalog.
+- `events`: campaign/event schedule.
+- `themes`: event-linked theme requests and rollout state (`requested`, `building`, `ready`, `failed`) with `enabled` toggle.
+- Supabase storage bucket: `product-images` (public).
 
-## Local usage
-- Storefront (`/`): lists published products/events; anonymous users can browse.
-- Login (`/login`): email/password auth; any account in Supabase Auth acts as admin.
-- Admin (`/admin`): CRUD for products/events, upload product images to `product-images`, request a Codex-built theme tied to an event.
+## Theme behavior
+- The storefront only applies a theme when a theme row is both:
+  - `status = ready`
+  - `enabled = true`
+- Base UI stays unchanged when no eligible theme exists.
+- Existing scoped themes currently include:
+  - `merry-christmas`
+  - `new-years-event`
+
+## Setup
+1. Install dependencies:
+   - `npm install`
+2. Configure env:
+   - `cp .env.local.example .env.local`
+   - Fill:
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+     - `GITHUB_TOKEN`
+     - `GITHUB_REPO_OWNER`
+     - `GITHUB_REPO_NAME`
+3. Apply SQL migrations from `supabase/migrations`.
+4. Start dev server:
+   - `npm run dev`
+
+## App routes
+- `/`: storefront (public browsing)
+- `/login`: admin login (Supabase auth)
+- `/admin`: products/events/theme management
+- `/api/themes`: creates theme request row + GitHub issue
+
+## Scripts
+- `npm run dev`: local Next.js dev server.
+- `npm run build`: production Next build.
+- `npm run start`: run Next production server.
+- `npm run lint`: ESLint checks.
+- `npm test`: Vitest test suites.
+- `npm run build:cf`: OpenNext Cloudflare build.
+- `npm run preview:cf`: local Cloudflare Worker preview.
+- `npm run deploy:cf`: build + deploy to Cloudflare.
+
+## Deploy to Cloudflare Workers
+This repo is preconfigured with:
+- `open-next.config.ts`
+- `wrangler.jsonc`
+- Next Cloudflare dev init in `next.config.ts`
+
+1. Login to Cloudflare:
+   - `npx wrangler login`
+2. Optional local worker env file:
+   - `cp .dev.vars.example .dev.vars`
+3. Build worker bundle:
+   - `npm run build:cf`
+4. Preview locally:
+   - `npm run preview:cf`
+5. Set Cloudflare secrets (runtime):
+   - `npx wrangler secret put NEXT_PUBLIC_SUPABASE_URL`
+   - `npx wrangler secret put NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `npx wrangler secret put GITHUB_TOKEN`
+   - `npx wrangler secret put GITHUB_REPO_OWNER`
+   - `npx wrangler secret put GITHUB_REPO_NAME`
+6. Deploy:
+   - `npm run deploy:cf`
+
+Notes:
+- Worker entrypoint is generated at `.open-next/worker.js`.
+- `nodejs_compat` is enabled in `wrangler.jsonc`.
+- For CI deployments, provide the same env/secrets before running `npm run build:cf`.
 
 ## Codex theme flow
-1) From `/admin`, pick an event and submit the theme request form. The API (`/api/themes`) checks the Supabase session, inserts a `themes` row in `requested` -> `building` state, and opens a GitHub issue with labels `codex-request` and `theme`. The issue body includes the event/title/notes for traceability.
-2) `.github/workflows/codex-theme.yml` triggers when the `codex-request` label is present. Concurrency serializes per issue: `codex-theme-<issue number>`.
-3) The workflow checks out the default branch, prepares `codex-theme-<issue>` branch, and runs `openai/codex-action@v1` with a prompt that enforces:
-   - Touch storefront only (`src/app/page.tsx`, `src/app/globals.css`); admin/auth/tests stay untouched.
-   - Keep the diff small and reuse existing tokens; no extra assets/routes.
-   - Preserve prior theme definitions; append new `data-theme` scopes rather than replacing existing ones.
-   - Make the theme toggleable only when a theme row is both `enabled` and `status=ready`; never force-enable in code.
-   - Respect the GitHub issue title as the requested mood and include issue body notes verbatim.
-4) Workflow drops any workflow file edits, commits/pushes the branch, then comments on the issue with compare link and the Codex summary.
-5) Once the PR is merged, toggle the theme to `enabled=true` in `/admin` for the associated event. The storefront reads the latest ready+enabled theme and sets `data-theme` accordingly.
-
-### Prompting tips for Codex
-- Issue title = the vibe/mood you want (e.g., “Desert dusk storefront”).
-- Issue body = specific requests (colors, layout hints, must-keep elements). These notes are injected into the Codex prompt verbatim.
-- Ensure the issue carries the `codex-request` label so the workflow runs. Label can be applied at creation or after.
-- Keep notes focused on storefront styling; admin and tests are intentionally excluded.
-
-### Codex prompt breakdown (from `.github/workflows/codex-theme.yml`)
-- Role: “Generate a refreshed storefront theme for this Next.js + Tailwind ecommerce demo.”
-- Scope guardrails: keep all data fetching/logic; edit only `src/app/page.tsx` + `src/app/globals.css`; do not touch admin/auth/tests; avoid new assets/routes; keep the diff small and reuse tokens.
-- Theme behavior: preserve existing theme definitions; append a new `data-theme` block; never enable by default—only apply when Supabase theme row is `enabled` and `status=ready`; base look must stay unchanged when the flag is off.
-- Inputs: requested mood = GitHub issue title; notes = full issue body injected under a divider; workflow runs on the default branch for stability.
-- Quality: maintain accessibility, contrast, and mobile responsiveness; keep generation quick.
+1. Admin submits a theme request from `/admin`.
+2. `/api/themes` validates session, inserts a `themes` row, and opens a GitHub issue (`codex-request`, `theme`).
+3. `.github/workflows/codex-theme.yml` runs Codex with strict storefront-only scope (`src/app/page.tsx`, `src/app/globals.css`).
+4. After PR merge, enable the theme row in admin.
+5. Storefront reads latest `ready + enabled` theme and sets `data-theme`.
 
 ## Testing
-- Run all tests: `npm test`
-- What the suites cover:
-  - `tests/codex-workflow.test.ts`: asserts the GitHub workflow prompt stays strict (toggleable theme flag, storefront-only edits, concurrency, preserve themes, include issue body).
-  - `tests/home-theme-toggle.test.tsx`: ensures the storefront only applies `data-theme` when a theme is ready+enabled and falls back to the base look otherwise.
-  - `tests/storefront-nav.test.tsx`: checks nav accessibility label and login/logout/admin button states driven by Supabase auth.
-  - `tests/admin-dashboard.test.tsx`: validates the theme request form payload, prevents auto-enable, and verifies enable/disable toggling writes to `themes.enabled`.
-- Tests run with Vitest + jsdom; see `tests/setup.tsx` for Next.js mocks.
+- Run tests: `npm test`
+- Coverage focus:
+  - Workflow prompt constraints (`tests/codex-workflow.test.ts`)
+  - Theme toggle rules (`tests/home-theme-toggle.test.tsx`)
+  - Nav auth states (`tests/storefront-nav.test.tsx`)
+  - Admin theme request/toggle behavior (`tests/admin-dashboard.test.tsx`)

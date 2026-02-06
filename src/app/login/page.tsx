@@ -33,11 +33,11 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-black/30">
+    <main className="panel-lift card-mesh mx-auto max-w-lg space-y-6 rounded-3xl p-8 sm:p-10">
       <div className="flex items-center justify-between text-sm">
         <Link
           href="/"
-          className="rounded-full border border-[var(--border)] px-4 py-2 transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          className="rounded-full border border-[var(--border)] bg-white/5 px-4 py-2 transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           ← Back to storefront
         </Link>
@@ -61,7 +61,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-base text-[var(--foreground)] outline-none ring-0 transition focus:border-[var(--accent)]"
+            className="w-full rounded-xl border border-[var(--border)] px-4 py-3 text-base text-[var(--foreground)] outline-none ring-0 transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
             placeholder="admin@example.com"
           />
         </label>
@@ -73,7 +73,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-base text-[var(--foreground)] outline-none ring-0 transition focus:border-[var(--accent)]"
+            className="w-full rounded-xl border border-[var(--border)] px-4 py-3 text-base text-[var(--foreground)] outline-none ring-0 transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/25"
             placeholder="••••••••"
           />
         </label>

@@ -46,31 +46,65 @@ export type Database = {
     Tables: {
       products: {
         Row: Product;
-        Insert: Omit<Product, "id" | "created_at" | "updated_at"> & {
+        Insert: {
+          name: string;
+          price_cents: number;
+          slug?: string | null;
+          status?: ProductStatus;
+          summary?: string | null;
+          description?: string | null;
+          image_url?: string | null;
           id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Product>;
+        Relationships: [];
       };
       events: {
         Row: Event;
-        Insert: Omit<Event, "id" | "created_at" | "updated_at"> & {
+        Insert: {
+          title: string;
+          description?: string | null;
+          status?: EventStatus;
+          starts_at?: string | null;
+          ends_at?: string | null;
           id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Event>;
+        Relationships: [];
       };
       themes: {
         Row: Theme;
-        Insert: Omit<Theme, "id" | "created_at" | "updated_at"> & {
+        Insert: {
+          event_id: string;
+          title: string;
+          notes?: string | null;
+          status?: ThemeStatus;
+          enabled?: boolean;
+          issue_number?: number | null;
+          issue_url?: string | null;
           id?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Theme>;
+        Relationships: [
+          {
+            foreignKeyName: "themes_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };

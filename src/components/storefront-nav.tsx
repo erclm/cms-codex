@@ -39,17 +39,17 @@ export default function StorefrontNav() {
   return (
     <nav
       aria-label="Storefront navigation"
-      className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--card)]/80 px-4 py-3 shadow-lg shadow-black/30 backdrop-blur"
+      className="panel-lift card-mesh flex items-center justify-between rounded-2xl px-4 py-3 sm:px-5"
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400/90 to-[#4ae1ae] text-[#0c1a26] shadow-inner shadow-emerald-500/40">
+        <div className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-gradient-to-br from-[#84f0da] via-[#6bd6f4] to-[#54beff] text-[#041321] shadow-[0_12px_24px_rgba(74,225,174,0.35)]">
           <span className="text-lg font-black leading-none">NM</span>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
+          <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--muted)]">
             Night Market
           </p>
-          <p className="text-sm font-semibold">Everyday goods & drops</p>
+          <p className="text-sm font-semibold">Everyday goods and fresh drops</p>
         </div>
       </div>
 

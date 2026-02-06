@@ -64,10 +64,10 @@ const emptyTheme: ThemeFormState = {
 };
 
 const selectFieldClass =
-  "mt-1 w-full rounded-xl border border-white/15 bg-[#0f2335] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
+  "mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
 
 const compactSelectClass =
-  "rounded-full border border-white/20 bg-[#0f2335] px-3 py-1 text-xs font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
+  "rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold text-[var(--foreground)] outline-none transition hover:border-[var(--accent)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-60";
 
 function toSlug(text: string) {
   return text
@@ -106,21 +106,21 @@ export default function AdminDashboard() {
   const refreshData = useCallback(async () => {
     const [{ data: productRows }, { data: eventRows }, { data: themeRows }] =
       await Promise.all([
-      supabase.from("products").select("*").order("created_at", {
-        ascending: false,
-      }),
-      supabase.from("events").select("*").order("starts_at", {
-        ascending: true,
-        nullsFirst: true,
-      }),
-      supabase.from("themes").select("*").order("created_at", {
-        ascending: false,
-      }),
-    ]);
+        supabase.from("products").select("*").order("created_at", {
+          ascending: false,
+        }),
+        supabase.from("events").select("*").order("starts_at", {
+          ascending: true,
+          nullsFirst: true,
+        }),
+        supabase.from("themes").select("*").order("created_at", {
+          ascending: false,
+        }),
+      ]);
 
-    setProducts(productRows ?? []);
-    setEvents(eventRows ?? []);
-    setThemes(themeRows ?? []);
+    setProducts((productRows ?? []) as Product[]);
+    setEvents((eventRows ?? []) as Event[]);
+    setThemes((themeRows ?? []) as Theme[]);
   }, [supabase]);
 
   useEffect(() => {
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
 
   if (!sessionReady) {
     return (
-      <main className="space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-black/30">
+      <main className="panel-lift space-y-6 rounded-3xl p-8">
         <p className="text-[var(--muted)]">Checking session…</p>
       </main>
     );
@@ -371,7 +371,7 @@ export default function AdminDashboard() {
 
   if (!isAuthed) {
     return (
-      <main className="space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-black/30">
+      <main className="panel-lift space-y-6 rounded-3xl p-8">
         <h1 className="text-3xl font-semibold">Admin</h1>
         <p className="text-[var(--muted)]">
           You need to log in to access the CMS.
@@ -395,8 +395,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <main className="space-y-10">
-      <header className="flex flex-col gap-4 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-lg shadow-black/30 lg:flex-row lg:items-center lg:justify-between">
+    <main className="fade-rise space-y-10">
+      <header className="panel-lift card-mesh flex flex-col gap-4 rounded-3xl p-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-2">
           <p className="text-sm uppercase tracking-[0.2em] text-[var(--muted)]">
             CMS Control
@@ -424,7 +424,7 @@ export default function AdminDashboard() {
       </header>
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-lg shadow-black/30">
+        <div className="panel-lift rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setProductForm((p) => ({ ...p, name: e.target.value }))
                 }
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
             </label>
 
@@ -466,7 +466,7 @@ export default function AdminDashboard() {
                   setProductForm((p) => ({ ...p, slug: e.target.value }))
                 }
                 placeholder="auto-generated if blank"
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
             </label>
 
@@ -480,7 +480,7 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setProductForm((p) => ({ ...p, price: e.target.value }))
                 }
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
             </label>
 
@@ -509,7 +509,7 @@ export default function AdminDashboard() {
                   setProductForm((p) => ({ ...p, image_url: e.target.value }))
                 }
                 placeholder="https://example.com/image.jpg"
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
               <span className="mt-1 block text-xs text-[var(--muted)]">
                 Paste a hosted image URL or upload below.
@@ -522,7 +522,7 @@ export default function AdminDashboard() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e.target.files?.[0])}
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-2 text-[var(--foreground)] file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-2 file:text-[#0c1a26]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-2 text-[var(--foreground)] file:cursor-pointer file:rounded-md file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-2 file:text-[#0c1a26]"
               />
               <span className="mt-1 block text-xs text-[var(--muted)]">
                 Uploads go to the `product-images` bucket and auto-fill the URL.
@@ -546,7 +546,7 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setProductForm((p) => ({ ...p, summary: e.target.value }))
                 }
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
             </label>
 
@@ -558,7 +558,7 @@ export default function AdminDashboard() {
                   setProductForm((p) => ({ ...p, description: e.target.value }))
                 }
                 rows={3}
-                className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
               />
             </label>
 
@@ -589,7 +589,7 @@ export default function AdminDashboard() {
               products.map((product) => (
                 <div
                   key={product.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="space-y-1">
                     <p className="text-sm uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -640,7 +640,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-lg shadow-black/30">
+          <div className="panel-lift rounded-3xl p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -667,7 +667,7 @@ export default function AdminDashboard() {
                   onChange={(e) =>
                     setEventForm((p) => ({ ...p, title: e.target.value }))
                   }
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
 
@@ -682,7 +682,7 @@ export default function AdminDashboard() {
                     }))
                   }
                   rows={3}
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
 
@@ -695,7 +695,7 @@ export default function AdminDashboard() {
                     onChange={(e) =>
                       setEventForm((p) => ({ ...p, starts_at: e.target.value }))
                     }
-                    className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                    className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                   />
                 </label>
 
@@ -707,7 +707,7 @@ export default function AdminDashboard() {
                     onChange={(e) =>
                       setEventForm((p) => ({ ...p, ends_at: e.target.value }))
                     }
-                    className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                    className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                   />
                 </label>
               </div>
@@ -761,7 +761,7 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-white/5 p-4"
+                      className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] p-4"
                     >
                       <div className="flex items-center gap-2 text-[var(--muted)]">
                         <span className="text-xs uppercase tracking-[0.2em]">
@@ -817,7 +817,7 @@ export default function AdminDashboard() {
                             {eventThemes.map((theme) => (
                               <div
                                 key={theme.id}
-                                className="flex flex-col gap-2 rounded-lg border border-[var(--border)] bg-white/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+                                className="flex flex-col gap-2 rounded-lg border border-[var(--border)] p-3 sm:flex-row sm:items-center sm:justify-between"
                               >
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
@@ -890,7 +890,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[#15304f] via-[var(--card)] to-[#0b1c2f] p-6 shadow-lg shadow-black/30">
+          <div className="panel-lift card-mesh rounded-3xl bg-gradient-to-br from-[#15304f] via-[var(--card)] to-[#0b1c2f] p-6">
             <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
               Codex
             </p>
@@ -909,16 +909,16 @@ export default function AdminDashboard() {
                 <select
                   required
                   value={themeForm.event_id}
-                onChange={(e) =>
-                  setThemeForm((p) => ({ ...p, event_id: e.target.value }))
-                }
-                disabled={events.length === 0}
-                className={selectFieldClass}
-              >
-                <option value="" disabled>
-                  Select an event
-                </option>
-                {events.map((event) => (
+                  onChange={(e) =>
+                    setThemeForm((p) => ({ ...p, event_id: e.target.value }))
+                  }
+                  disabled={events.length === 0}
+                  className={selectFieldClass}
+                >
+                  <option value="" disabled>
+                    Select an event
+                  </option>
+                  {events.map((event) => (
                     <option key={event.id} value={event.id}>
                       {event.title}
                     </option>
@@ -935,7 +935,7 @@ export default function AdminDashboard() {
                     setThemeForm((p) => ({ ...p, title: e.target.value }))
                   }
                   placeholder="Ex: Neon storefront theme"
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
 
@@ -948,7 +948,7 @@ export default function AdminDashboard() {
                   }
                   rows={3}
                   placeholder="Colors, vibe, constraints…"
-                  className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+                  className="mt-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
                 />
               </label>
 
@@ -962,7 +962,7 @@ export default function AdminDashboard() {
             </form>
 
             {themeMessage && (
-              <p className="mt-3 rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3 text-sm text-[var(--foreground)]">
+              <p className="mt-3 rounded-xl border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)]">
                 {themeMessage}
               </p>
             )}
@@ -983,7 +983,7 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={theme.id}
-                      className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-white/5 px-4 py-3"
+                      className="flex items-center justify-between rounded-xl border border-[var(--border)] px-4 py-3"
                     >
                       <div>
                         <p className="text-sm font-semibold">{theme.title}</p>

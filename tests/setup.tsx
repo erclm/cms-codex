@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import type React from "react";
+import { vi } from "vitest";
 
 // Minimal mock for next/link to behave like a normal anchor in tests.
 vi.mock("next/link", () => {

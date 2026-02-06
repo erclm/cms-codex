@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/auth-helpers-nextjs";
 import { Octokit } from "@octokit/rest";
-import type { Database, ThemeStatus } from "@/lib/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database, Theme, ThemeStatus } from "@/lib/types";
 
 type ThemeRequestBody = {
   eventId?: string;
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
         }
       },
     },
-  });
+  }) as unknown as SupabaseClient<Database>;
 
   const {
     data: { user },
@@ -102,19 +103,20 @@ export async function POST(request: Request) {
   }
 
   const initialStatus: ThemeStatus = "requested";
-  const { data: insertedTheme, error: insertError } = await supabase
+  const themeInsert: Database["public"]["Tables"]["themes"]["Insert"] = {
+    event_id: eventId,
+    title,
+    notes: notes?.trim() || null,
+    enabled: false,
+    status: initialStatus,
+  };
+
+  const { data: insertedThemeData, error: insertError } = await supabase
     .from("themes")
-    .insert([
-      {
-        event_id: eventId,
-        title,
-        notes: notes?.trim() || null,
-        enabled: false,
-        status: initialStatus,
-      },
-    ])
+    .insert(themeInsert)
     .select()
     .single();
+  const insertedTheme = insertedThemeData as Theme | null;
 
   if (insertError || !insertedTheme) {
     console.error("Failed to create theme row", insertError);
@@ -142,7 +144,7 @@ export async function POST(request: Request) {
       labels: ["codex-request", "theme"],
     });
 
-    const { data: updatedTheme } = await supabase
+    const { data: updatedThemeData } = await supabase
       .from("themes")
       .update({
         status: "building",
@@ -152,6 +154,7 @@ export async function POST(request: Request) {
       .eq("id", insertedTheme.id)
       .select()
       .single();
+    const updatedTheme = updatedThemeData as Theme | null;
 
     return NextResponse.json({
       theme: updatedTheme ?? insertedTheme,

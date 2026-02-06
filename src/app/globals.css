@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f1622;
-  --foreground: #ecf3ff;
-  --muted: #a7b3c7;
-  --card: rgba(255, 255, 255, 0.04);
-  --accent: #7cf1c8;
-  --accent-strong: #4ae1ae;
-  --border: rgba(255, 255, 255, 0.08);
+  --background: #040816;
+  --foreground: #eef3ff;
+  --muted: #a5b3cf;
+  --card: rgba(13, 22, 42, 0.72);
+  --accent: #7be7e0;
+  --accent-strong: #39e2a9;
+  --border: rgba(139, 164, 206, 0.28);
+  --input-bg: rgba(9, 19, 36, 0.82);
 }
 
 @theme inline {
@@ -26,6 +27,7 @@
   --accent-strong: #f4cc5d;
   --border: rgba(244, 204, 93, 0.35);
   --frost: rgba(161, 227, 187, 0.6);
+  --input-bg: rgba(12, 28, 18, 0.82);
 
   background:
     radial-gradient(circle at 10% 20%, rgba(233, 61, 61, 0.18), transparent 32%),
@@ -152,6 +154,7 @@
   --accent-strong: #f5d56b;
   --border: rgba(154, 226, 255, 0.35);
   --frost: rgba(154, 226, 255, 0.18);
+  --input-bg: rgba(7, 17, 35, 0.82);
 
   background:
     radial-gradient(circle at 12% 15%, rgba(154, 226, 255, 0.18), transparent 30%),
@@ -270,22 +273,63 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+}
+
 body {
-  background: radial-gradient(circle at 10% 20%, #163058 0, transparent 35%),
-    radial-gradient(circle at 80% 10%, #1b355b 0, transparent 32%),
-    radial-gradient(circle at 50% 50%, #112138 0, transparent 38%),
-    var(--background);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(64, 112, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(38, 198, 218, 0.14), transparent 30%),
+    radial-gradient(circle at 50% 78%, rgba(57, 226, 169, 0.12), transparent 34%),
+    linear-gradient(160deg, #030712 0%, #050c1b 44%, #07122a 100%);
   color: var(--foreground);
   min-height: 100vh;
+  letter-spacing: 0.01em;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -24% -12%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 24%, rgba(89, 136, 255, 0.22), transparent 34%),
+    radial-gradient(circle at 75% 18%, rgba(57, 226, 169, 0.1), transparent 30%),
+    radial-gradient(circle at 46% 72%, rgba(123, 231, 224, 0.1), transparent 34%);
+  filter: blur(36px);
+  opacity: 0.85;
+  z-index: -1;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 28%, transparent 92%);
+  opacity: 0.24;
+  z-index: -1;
 }
 
 a {
   color: inherit;
 }
 
+input,
+textarea,
 select {
-  background-color: #0f2335;
+  background-color: var(--input-bg);
   color: var(--foreground);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 80%, transparent);
 }
 
 select option {
@@ -295,4 +339,52 @@ select option {
 
 select:disabled {
   color: var(--muted);
+}
+
+.panel-lift {
+  border: 1px solid var(--border);
+  background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.015) 34%,
+      rgba(3, 9, 24, 0.72)
+    ),
+    var(--card);
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.card-mesh {
+  position: relative;
+  isolation: isolate;
+}
+
+.card-mesh::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(123, 231, 224, 0.35), transparent 32%),
+    linear-gradient(315deg, rgba(57, 226, 169, 0.28), transparent 40%);
+  opacity: 0.35;
+  z-index: -1;
+}
+
+.fade-rise {
+  animation: fade-rise 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

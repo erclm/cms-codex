@@ -37,8 +37,8 @@ async function loadContent() {
   ]);
 
   return {
-    products: products ?? [],
-    events: events ?? [],
+    products: (products ?? []) as Product[],
+    events: (events ?? []) as Event[],
     activeTheme: (themes as ActiveTheme[] | null)?.[0] ?? null,
   };
 }
@@ -181,9 +181,9 @@ export default async function Home() {
   return (
     <main
       data-theme={themeFlag ?? undefined}
-      className={`flex flex-col gap-10 pb-16 ${
+      className={`fade-rise flex flex-col gap-10 pb-16 ${
         enableMerryTheme
-          ? "relative overflow-hidden rounded-[28px] border border-[var(--border)] bg-[var(--background)]/95 shadow-[0_20px_110px_rgba(0,0,0,0.55)] backdrop-blur-md"
+          ? "relative overflow-hidden rounded-[30px] border border-[var(--border)] bg-[var(--background)]/94 shadow-[0_20px_110px_rgba(0,0,0,0.55)] backdrop-blur-md"
           : ""
       } ${enableNewYears ? "ny-shell relative overflow-hidden rounded-[28px] bg-[var(--background)]/90 backdrop-blur-md" : ""}`}
     >
@@ -202,7 +202,7 @@ export default async function Home() {
       <StorefrontNav />
 
       <section
-        className={`grid gap-6 rounded-3xl border border-[var(--border)] bg-[var(--card)]/80 p-8 shadow-2xl shadow-black/40 backdrop-blur lg:grid-cols-[1.2fr_0.8fr] ${
+        className={`panel-lift card-mesh grid gap-6 rounded-3xl p-8 shadow-2xl shadow-black/40 lg:grid-cols-[1.2fr_0.8fr] ${
           enableMerryTheme ? "festive-hero" : ""
         } ${enableNewYears ? "ny-hero" : ""}`}
       >
@@ -288,7 +288,7 @@ export default async function Home() {
         </div>
 
         <div
-          className={`relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#102436] via-[#0c1928] to-[#08131e] p-4 shadow-xl shadow-black/40 ${
+          className={`relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#102436] via-[#0d1a2f] to-[#08131e] p-4 shadow-xl shadow-black/40 ${
             enableMerryTheme ? "festive-card" : ""
           } ${enableNewYears ? "ny-card" : ""}`}
         >
@@ -387,7 +387,7 @@ export default async function Home() {
         </div>
 
         {featuredProducts.length === 0 ? (
-          <p className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--muted)]">
+          <p className="panel-lift rounded-2xl p-6 text-[var(--muted)]">
             No products yet. Add one from the admin area.
           </p>
         ) : (
@@ -395,7 +395,7 @@ export default async function Home() {
             {featuredProducts.map((product: Product) => (
               <article
                 key={product.id}
-                className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-md shadow-black/30 transition hover:-translate-y-1 hover:border-[var(--accent)] ${
+                className={`panel-lift group flex h-full flex-col overflow-hidden rounded-2xl transition hover:-translate-y-1 hover:border-[var(--accent)] ${
                   enableMerryTheme ? "festive-card" : ""
                 } ${enableNewYears ? "ny-card" : ""}`}
               >
@@ -447,7 +447,7 @@ export default async function Home() {
 
       <section className="grid gap-4 sm:grid-cols-3">
         <div
-          className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-white/10 via-[var(--card)] to-black/30 p-5 shadow-lg shadow-black/30 ${
+          className={`panel-lift rounded-2xl bg-gradient-to-br from-white/10 via-[var(--card)] to-black/30 p-5 ${
             enableMerryTheme ? "festive-subtle" : ""
           } ${enableNewYears ? "ny-subtle" : ""}`}
         >
@@ -474,7 +474,7 @@ export default async function Home() {
           </p>
         </div>
         <div
-          className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#102a1f] via-[#0c1f15] to-[#0a1712] p-5 shadow-lg shadow-black/30 ${
+          className={`panel-lift rounded-2xl bg-gradient-to-br from-[#102a1f] via-[#0c1f15] to-[#0a1712] p-5 ${
             enableMerryTheme ? "festive-subtle" : ""
           } ${enableNewYears ? "ny-subtle" : ""}`}
         >
@@ -497,7 +497,7 @@ export default async function Home() {
           </p>
         </div>
         <div
-          className={`rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[#142437] via-[#0f1c2c] to-[#0a1622] p-5 shadow-lg shadow-black/30 ${
+          className={`panel-lift rounded-2xl bg-gradient-to-br from-[#142437] via-[#0f1c2c] to-[#0a1622] p-5 ${
             enableMerryTheme ? "festive-subtle" : ""
           } ${enableNewYears ? "ny-subtle" : ""}`}
         >
@@ -539,7 +539,7 @@ export default async function Home() {
           </AuthOnly>
         </div>
         {events.length === 0 ? (
-          <p className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--muted)]">
+          <p className="panel-lift rounded-2xl p-6 text-[var(--muted)]">
             {enableNewYears
               ? "No countdown moments yet. Add a celebration from the admin area."
               : enableMerryTheme
@@ -551,7 +551,7 @@ export default async function Home() {
             {events.map((event: Event) => (
               <article
                 key={event.id}
-                className={`flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-md shadow-black/30 ${
+                className={`panel-lift flex flex-col gap-3 rounded-2xl p-5 ${
                   enableMerryTheme ? "festive-card" : ""
                 } ${enableNewYears ? "ny-card" : ""}`}
               >

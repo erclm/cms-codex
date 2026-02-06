@@ -1,0 +1,5 @@
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+GITHUB_TOKEN=ghp_your_token
+GITHUB_REPO_OWNER=your-org-or-user
+GITHUB_REPO_NAME=your-repo
